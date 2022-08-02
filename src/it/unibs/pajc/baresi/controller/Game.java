@@ -1,8 +1,8 @@
 package it.unibs.pajc.baresi.controller;
 
 import it.unibs.pajc.baresi.input.Keyboard;
-import it.unibs.pajc.baresi.view.Screen;
-import it.unibs.pajc.baresi.view.background.Background;
+import it.unibs.pajc.baresi.graphic.Screen;
+import it.unibs.pajc.baresi.graphic.background.Background;
 
 import javax.swing.*;
 import java.awt.*;

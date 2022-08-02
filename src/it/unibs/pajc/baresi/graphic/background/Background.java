@@ -1,7 +1,7 @@
-package it.unibs.pajc.baresi.view.background;
+package it.unibs.pajc.baresi.graphic.background;
 
 import it.unibs.pajc.baresi.input.Keyboard;
-import it.unibs.pajc.baresi.view.Screen;
+import it.unibs.pajc.baresi.graphic.Screen;
 
 import java.util.Arrays;
 import java.util.Comparator;

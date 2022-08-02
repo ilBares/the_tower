@@ -1,8 +1,8 @@
-package it.unibs.pajc.baresi.view;
+package it.unibs.pajc.baresi.graphic;
 
 import it.unibs.pajc.baresi.controller.Game;
-import it.unibs.pajc.baresi.view.background.Background;
-import it.unibs.pajc.baresi.view.background.Layer;
+import it.unibs.pajc.baresi.graphic.background.Background;
+import it.unibs.pajc.baresi.graphic.background.Layer;
 
 import java.util.Arrays;
 

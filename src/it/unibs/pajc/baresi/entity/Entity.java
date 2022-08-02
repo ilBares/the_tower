@@ -1,6 +1,6 @@
 package it.unibs.pajc.baresi.entity;
 
-import it.unibs.pajc.baresi.view.Screen;
+import it.unibs.pajc.baresi.graphic.Screen;
 
 public abstract class Entity {
 

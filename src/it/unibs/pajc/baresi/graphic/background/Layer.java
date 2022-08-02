@@ -1,6 +1,6 @@
-package it.unibs.pajc.baresi.view.background;
+package it.unibs.pajc.baresi.graphic.background;
 
-import it.unibs.pajc.baresi.view.Screen;
+import it.unibs.pajc.baresi.graphic.Screen;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;

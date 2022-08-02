@@ -1,6 +1,6 @@
 package it.unibs.pajc.baresi.entity;
 
-import it.unibs.pajc.baresi.view.Sprite;
+import it.unibs.pajc.baresi.graphic.Sprite;
 
 public class Mob extends Entity {
 
