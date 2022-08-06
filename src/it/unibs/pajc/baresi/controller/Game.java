@@ -3,6 +3,7 @@ package it.unibs.pajc.baresi.controller;
 import it.unibs.pajc.baresi.input.Keyboard;
 import it.unibs.pajc.baresi.graphic.Screen;
 import it.unibs.pajc.baresi.graphic.background.Background;
+import it.unibs.pajc.baresi.input.Mouse;
 
 import javax.swing.*;
 import java.awt.*;
@@ -23,12 +24,12 @@ import java.util.concurrent.atomic.AtomicLong;
  * @see Screen
  * @see Background
  */
-public class Game extends Canvas implements Runnable {
+public class Game extends Canvas implements  Runnable {
     private final JFrame frame;
     private int width, height;
     private double scale;
 
-    private String title;
+    private String  title;
 
     public long ups = 120L;
 
@@ -81,12 +82,21 @@ public class Game extends Canvas implements Runnable {
         this.running = false;
         frame = new JFrame();
 
-        // key is used to handle keyboard input
+        ///
+        /// handling keyboard input
+        ///
         key = new Keyboard();
         addKeyListener(key);
 
+        ///
+        /// handling mouse input
+        ///
+        Mouse mouse = new Mouse();
+        addMouseListener(mouse);
+        addMouseMotionListener(mouse);
+
         screen = new Screen(width, height);
-        background = new Background(width, height, key, paths);
+        background = new Background(width, height, scale, key, paths);
 
         image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         pixels = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
@@ -110,6 +120,7 @@ public class Game extends Canvas implements Runnable {
         // needed to center the Window
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
+
         requestFocus();
     }
 

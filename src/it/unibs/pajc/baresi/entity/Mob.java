@@ -41,6 +41,8 @@ public class Mob extends Entity {
     // 3 = dying
     protected int state;
 
+    protected boolean first;
+
     public void idle() {
         // set state to idle
         // set dx to 0
@@ -49,6 +51,7 @@ public class Mob extends Entity {
     public void move() {
         // set state to move
         // set dx to 1
+        // if !collision
     }
 
     public void attack() {
@@ -59,5 +62,11 @@ public class Mob extends Entity {
     public void death() {
         // set state to death
         remove();
+    }
+
+    private boolean collision() {
+        boolean collision = false;
+
+        return collision;
     }
 }
