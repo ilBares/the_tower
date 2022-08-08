@@ -2,9 +2,11 @@ package it.unibs.pajc.baresi.entity;
 
 import it.unibs.pajc.baresi.graphic.Screen;
 
+import java.awt.*;
+
 public abstract class Entity {
 
-    private int x, y;
+    protected double x, y;
     private boolean removed = false;
 
     public void update() { }
@@ -19,4 +21,6 @@ public abstract class Entity {
     public boolean isRemoved() {
         return removed;
     }
+
+    public abstract Rectangle getBounds();
 }

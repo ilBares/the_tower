@@ -1,5 +1,7 @@
 package it.unibs.pajc.baresi.controller;
 
+import it.unibs.pajc.baresi.entity.Mob;
+import it.unibs.pajc.baresi.graphic.sprite.*;
 import it.unibs.pajc.baresi.input.Keyboard;
 import it.unibs.pajc.baresi.graphic.Screen;
 import it.unibs.pajc.baresi.graphic.background.Background;
@@ -10,6 +12,7 @@ import java.awt.*;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
+import java.util.LinkedList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -37,12 +40,14 @@ public class Game extends Canvas implements  Runnable {
     private final Keyboard key;
     private boolean running;
     private Screen screen;
+    // todo to remove
+    private LinkedList<Mob> mobs;
 
     private Background background;
     // paths relative to background images
     private final String[][] paths = {
             {
-                "/background/ground/ground_tower.png",
+                "/background/ground/ground_temp.png",
             },
             {
                 "/background/mountains/mountains_1.png",
@@ -95,8 +100,28 @@ public class Game extends Canvas implements  Runnable {
         addMouseListener(mouse);
         addMouseMotionListener(mouse);
 
-        screen = new Screen(width, height);
         background = new Background(width, height, scale, key, paths);
+        screen = new Screen(width, height);
+
+        mobs = new LinkedList<>();
+        // todo to remove
+        Sprite dragon = new DragonSprite(64);
+        mobs.push(new Mob(10, height - 18, 0.30, dragon));
+
+        Sprite golem = new GolemSprite(64);
+        mobs.push(new Mob(70, height - 18, 0.15, golem));
+
+        Sprite adventurer = new AdventurerSprite(64);
+        mobs.push(new Mob(130, height - 18, 0.25, adventurer));
+
+        Sprite mini = new MiniGolemSprite(64);
+        mobs.push(new Mob(190, height - 18, 0.35, mini));
+
+        Sprite skeleton = new SkeletonSprite(64);
+        mobs.push(new Mob(1100, height - 18, -0.2, skeleton));
+
+        Sprite ghoul = new GhoulSprite(64);
+        mobs.push(new Mob(1000, height - 18, -0.15, ghoul));
 
         image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         pixels = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
@@ -244,6 +269,10 @@ public class Game extends Canvas implements  Runnable {
     private void update() {
         key.update();
         background.update();
+        screen.setMapOffset(background.getMapOffset());
+
+        // TODO to remove
+        mobs.forEach(Mob::update);
     }
 
     /**
@@ -267,6 +296,9 @@ public class Game extends Canvas implements  Runnable {
 
         screen.clear();
         background.render(screen);
+
+        // TODO to remove
+        mobs.forEach((mob) -> mob.render(screen));
 
         // Updating pixels that compose the image to be drawn on the JFrame
         System.arraycopy(screen.getPixels(), 0, pixels, 0, pixels.length);

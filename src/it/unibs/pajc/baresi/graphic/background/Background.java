@@ -4,6 +4,7 @@ import it.unibs.pajc.baresi.input.Keyboard;
 import it.unibs.pajc.baresi.graphic.Screen;
 import it.unibs.pajc.baresi.input.Mouse;
 
+import java.awt.event.MouseListener;
 import java.util.Arrays;
 import java.util.Comparator;
 
@@ -13,7 +14,7 @@ public class Background {
     public static final double UNIT = 1120.;
     private Keyboard input;
     private Layer[] layers;
-    private int x;
+    private int mapOffset;
 
     //
     // Constructor
@@ -23,7 +24,7 @@ public class Background {
         this.height = height;
         this.input = input;
         this.scale = scale;
-        x = 0;
+        mapOffset = 0;
         initialize(paths);
     }
 
@@ -37,9 +38,14 @@ public class Background {
         Arrays.sort(layers, Comparator.comparing(Layer::getWidth));
     }
 
+    public int getMapOffset() {
+        return (int) (mapOffset / ((UNIT - width) / (layers[layers.length - 1].getWidth() - width)));
+    }
+
     public void update() {
-        if ((input.isLeft() || Mouse.getX() < width * scale * 0.02) && x > 0) x--;
-        if ((input.isRight() || Mouse.getX() > width * scale * 0.98) && x < (UNIT - width)) x++;
+        if ((input.isLeft() || (Mouse.getX() < width * scale * 0.02 && Mouse.getX() >= 0)) && mapOffset > 0) mapOffset--;
+        if ((input.isRight() || Mouse.getX() > width * scale * 0.98) && mapOffset < (UNIT - width)) mapOffset++;
+
         for (Layer l : layers)
             l.update();
     }
@@ -47,7 +53,7 @@ public class Background {
     public void render(Screen screen) {
         // needed to set only empty pixels
         for (int i = layers.length - 1; i >= 0; i--) {
-            layers[i].render((int) (x / ((UNIT - width) / (layers[i].getWidth() - width))), screen);
+            layers[i].render((int) (mapOffset / ((UNIT - width) / (layers[i].getWidth() - width))), screen);
         }
     }
 }

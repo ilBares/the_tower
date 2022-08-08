@@ -14,17 +14,17 @@ public class Layer {
     private String[] paths;
     private int[][] pixels;
     private int index;
-    private int counter;
+    private int anim;
 
     public Layer(String[] paths) {
         this.paths = paths;
         index = 0;
-        counter = 0;
+        anim = 0;
+        pixels = new int[paths.length][];
         load();
     }
 
     private void load() {
-        pixels = new int[paths.length][];
         for (int i = 0; i < paths.length; i++) {
             String path = paths[i];
             try {
@@ -42,8 +42,9 @@ public class Layer {
     }
 
     public void update() {
-        index = (++counter / (100 / paths.length)) % paths.length;
-        counter %= 100;
+        // todo here?? or render?
+        index = (++anim / (100 / paths.length)) % paths.length;
+        anim %= 100;
     }
 
     public void render(int xOffset, Screen screen) {

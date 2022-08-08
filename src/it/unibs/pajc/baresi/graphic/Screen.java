@@ -1,8 +1,10 @@
 package it.unibs.pajc.baresi.graphic;
 
 import it.unibs.pajc.baresi.controller.Game;
+import it.unibs.pajc.baresi.entity.Mob;
 import it.unibs.pajc.baresi.graphic.background.Background;
 import it.unibs.pajc.baresi.graphic.background.Layer;
+import it.unibs.pajc.baresi.graphic.sprite.Sprite;
 
 import java.util.Arrays;
 
@@ -16,6 +18,7 @@ import java.util.Arrays;
  */
 public class Screen {
     private int width, height;
+    private int mapOffset;
     private int[] pixels;
 
     //
@@ -55,6 +58,24 @@ public class Screen {
                 }
             }
         }
+    }
+
+    public void renderMob(int xOffset, int yOffset, Sprite sprite) {
+        int[] spritePixels = sprite.getPixels();
+        int color;
+        xOffset -= mapOffset;
+
+        for (int x = 0; x < sprite.getSize(); x++) {
+            for (int y = 0; y < sprite.getSize(); y++) {
+                color = spritePixels[x + y * sprite.getSize()];
+                if (color != 0 && (xOffset + x) >= 0 && (xOffset + x) < width)
+                    pixels[(x + xOffset) + (yOffset + y - sprite.getSize()) * width] = color;
+            }
+        }
+    }
+
+    public void setMapOffset(int mapOffset) {
+        this.mapOffset = mapOffset;
     }
 
     /**
