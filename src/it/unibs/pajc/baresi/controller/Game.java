@@ -123,7 +123,7 @@ public class Game extends Canvas implements  Runnable {
      */
     public void initialize() {
         Dimension size = new Dimension((int) (width * scale), (int) (height * scale));
-        setPreferredSize(size);
+        frame.setPreferredSize(size);
 
         frame.add(this);
         frame.setResizable(false);
@@ -195,6 +195,7 @@ public class Game extends Canvas implements  Runnable {
      */
     @Override
     public void run() {
+        /*
         AtomicLong timer = new AtomicLong(System.currentTimeMillis());
 
         AtomicInteger frames = new AtomicInteger();
@@ -231,7 +232,8 @@ public class Game extends Canvas implements  Runnable {
 
         executor.scheduleAtFixedRate(task, initialDelay, period, TimeUnit.NANOSECONDS);
 
-        /*
+         */
+
 
         ///
         /// WITHOUT EXECUTOR
@@ -278,7 +280,7 @@ public class Game extends Canvas implements  Runnable {
                 }
             }
         }
-         */
+
         stop();
     }
 
