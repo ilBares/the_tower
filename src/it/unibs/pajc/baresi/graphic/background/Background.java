@@ -11,11 +11,11 @@ import java.util.Comparator;
 public class Background {
     private int width, height;
     private double scale;
-    private double unit;
+    private double unit = 1120.;
     private Keyboard input;
     private Layer[] layers;
-    private int mapOffset;
-    private final int dx = 1;
+    private double mapOffset;
+    private final double dx = 1;
 
     //
     // Constructor
@@ -37,7 +37,8 @@ public class Background {
 
         // sorts the layer array by width
         Arrays.sort(layers, Comparator.comparing(Layer::getWidth));
-        unit = layers[layers.length - 1].getWidth();
+        //
+        unit = layers[layers.length - 2].getWidth();
     }
 
     public int getMapOffset() {

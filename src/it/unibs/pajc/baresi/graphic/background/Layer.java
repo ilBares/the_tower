@@ -43,8 +43,10 @@ public class Layer {
 
     public void update() {
         // todo here?? or render?
-        index = (++anim / (100 / paths.length)) % paths.length;
-        anim %= 100;
+        if (paths.length > 1) {
+            index = (++anim / (100 / paths.length)) % paths.length;
+            anim %= 100;
+        }
     }
 
     public void render(int xOffset, Screen screen) {

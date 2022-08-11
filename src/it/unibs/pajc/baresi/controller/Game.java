@@ -36,7 +36,6 @@ public class Game extends Canvas implements  Runnable {
     private String  title;
 
     public long ups = 120L;
-    public long fps = 120L;
 
     private Thread thread;
     private final Keyboard key;
@@ -54,7 +53,10 @@ public class Game extends Canvas implements  Runnable {
     // paths relative to background images
     private final String[][] paths = {
             {
-                "/background/ground/ground_temp.png",
+                "/background/sky/sky.png",
+            },
+            {
+                "/background/clouds/clouds.png",
             },
             {
                 "/background/mountains/mountains_1.png",
@@ -67,7 +69,7 @@ public class Game extends Canvas implements  Runnable {
                 "/background/mountains/mountains_8.png",
             },
             {
-                "/background/sky/sky.png",
+                "/background/ground/ground_tower.png",
             },
 
     };
@@ -193,45 +195,41 @@ public class Game extends Canvas implements  Runnable {
      */
     @Override
     public void run() {
-        AtomicLong upsTimer = new AtomicLong(System.currentTimeMillis());
-        AtomicLong fpsTimer = new AtomicLong(System.currentTimeMillis());
+        AtomicLong timer = new AtomicLong(System.currentTimeMillis());
 
         AtomicInteger frames = new AtomicInteger();
         AtomicInteger updates = new AtomicInteger();
 
         ScheduledExecutorService executor = Executors.newScheduledThreadPool(2);
-        Runnable taskUpdate = () -> {
+        Runnable task = () -> {
             ///
             /// updating logical part
             ///
             update();
             updates.getAndIncrement();
 
-            if (System.currentTimeMillis() - upsTimer.get() > 1000) {
-                upsTimer.addAndGet(1000);
-                updates.set(0);
-            }
-        };
-
-        Runnable taskRender = () -> {
             ///
             /// updating graphical part
             ///
             render();
             frames.getAndIncrement();
 
-            if (System.currentTimeMillis() - fpsTimer.get() > 1000) {
-                fpsTimer.addAndGet(1000);
+            if (System.currentTimeMillis() - timer.get() > 1000) {
+                timer.addAndGet(1000);
                 frame.setTitle("fps " + frames);
+                updates.set(0);
                 frames.set(0);
             }
         };
 
+        Runnable taskRender = () -> {
+
+        };
+
         int initialDelay = 0;
-        long updatePeriod = 1_000_000_000L / ups;
-        long renderPeriod = 1_000_000_000L / fps;
-        executor.scheduleAtFixedRate(taskUpdate, initialDelay, updatePeriod, TimeUnit.NANOSECONDS);
-        executor.scheduleAtFixedRate(taskRender, initialDelay, renderPeriod, TimeUnit.NANOSECONDS);
+        long period = 1_000_000_000L / ups;
+
+        executor.scheduleAtFixedRate(task, initialDelay, period, TimeUnit.NANOSECONDS);
 
         /*
 
@@ -330,6 +328,7 @@ public class Game extends Canvas implements  Runnable {
 
         // Drawing image on the JFrame
         Graphics2D g2 = (Graphics2D) bs.getDrawGraphics();
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g2.setColor(Color.BLACK);
         g2.drawImage(image, 0, 0, getWidth(), getHeight(), null);
 
