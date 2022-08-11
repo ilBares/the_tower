@@ -2,6 +2,7 @@ package it.unibs.pajc.baresi.controller;
 
 import it.unibs.pajc.baresi.entity.Mob;
 import it.unibs.pajc.baresi.graphic.sprite.*;
+import it.unibs.pajc.baresi.graphic.ui.UIManager;
 import it.unibs.pajc.baresi.input.Keyboard;
 import it.unibs.pajc.baresi.graphic.Screen;
 import it.unibs.pajc.baresi.graphic.background.Background;
@@ -35,12 +36,18 @@ public class Game extends Canvas implements  Runnable {
     private String  title;
 
     public long ups = 120L;
+    public long fps = 120L;
 
     private Thread thread;
     private final Keyboard key;
     private boolean running;
     private Screen screen;
+
+    // todo ui
+    private static UIManager uiManager;
+
     // todo to remove
+    // todo change with level
     private LinkedList<Mob> mobs;
 
     private Background background;
@@ -60,11 +67,9 @@ public class Game extends Canvas implements  Runnable {
                 "/background/mountains/mountains_8.png",
             },
             {
-                "/background/clouds/clouds.png",
-            },
-            {
                 "/background/sky/sky.png",
-            }
+            },
+
     };
 
     private BufferedImage image;
@@ -100,28 +105,12 @@ public class Game extends Canvas implements  Runnable {
         addMouseListener(mouse);
         addMouseMotionListener(mouse);
 
-        background = new Background(width, height, scale, key, paths);
         screen = new Screen(width, height);
+        uiManager = new UIManager();
+
+        background = new Background(width, height, scale, key, paths);
 
         mobs = new LinkedList<>();
-        // todo to remove
-        Sprite dragon = new DragonSprite(64);
-        mobs.push(new Mob(10, height - 18, 0.30, dragon));
-
-        Sprite golem = new GolemSprite(64);
-        mobs.push(new Mob(70, height - 18, 0.15, golem));
-
-        Sprite adventurer = new AdventurerSprite(64);
-        mobs.push(new Mob(130, height - 18, 0.25, adventurer));
-
-        Sprite mini = new MiniGolemSprite(64);
-        mobs.push(new Mob(190, height - 18, 0.35, mini));
-
-        Sprite skeleton = new SkeletonSprite(64);
-        mobs.push(new Mob(1100, height - 18, -0.2, skeleton));
-
-        Sprite ghoul = new GhoulSprite(64);
-        mobs.push(new Mob(1000, height - 18, -0.15, ghoul));
 
         image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         pixels = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
@@ -147,6 +136,29 @@ public class Game extends Canvas implements  Runnable {
         frame.setVisible(true);
 
         requestFocus();
+
+        // todo to remove
+        Sprite dragon = new DragonSprite(64);
+        mobs.push(new Mob(400, height - 18, 0.30, dragon));
+
+        Sprite golem = new GolemSprite(64);
+        mobs.push(new Mob(70, height - 18, 0.15, golem));
+
+        Sprite adventurer = new AdventurerSprite(64);
+        mobs.push(new Mob(130, height - 18, 0.25, adventurer));
+
+        Sprite mini = new MiniGolemSprite(64);
+        mobs.push(new Mob(190, height - 18, 0.35, mini));
+
+        Sprite skeleton = new SkeletonSprite(64);
+        mobs.push(new Mob(1100, height - 18, -0.2, skeleton));
+
+        Sprite ghoul = new GhoulSprite(64);
+        mobs.push(new Mob(500, height - 18, -0.15, ghoul));
+    }
+
+    public UIManager getUiManager() {
+        return uiManager;
     }
 
     /**
@@ -181,36 +193,45 @@ public class Game extends Canvas implements  Runnable {
      */
     @Override
     public void run() {
-        AtomicLong timer = new AtomicLong(System.currentTimeMillis());
+        AtomicLong upsTimer = new AtomicLong(System.currentTimeMillis());
+        AtomicLong fpsTimer = new AtomicLong(System.currentTimeMillis());
+
         AtomicInteger frames = new AtomicInteger();
         AtomicInteger updates = new AtomicInteger();
 
-        ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
-        Runnable task = () -> {
+        ScheduledExecutorService executor = Executors.newScheduledThreadPool(2);
+        Runnable taskUpdate = () -> {
             ///
             /// updating logical part
             ///
             update();
             updates.getAndIncrement();
 
+            if (System.currentTimeMillis() - upsTimer.get() > 1000) {
+                upsTimer.addAndGet(1000);
+                updates.set(0);
+            }
+        };
+
+        Runnable taskRender = () -> {
             ///
             /// updating graphical part
             ///
             render();
             frames.getAndIncrement();
 
-            if (System.currentTimeMillis() - timer.get() > 1000) {
-                timer.addAndGet(1000);
-                // TODO to remove
-                frame.setTitle(frames + " fps");
-                updates.set(0);
+            if (System.currentTimeMillis() - fpsTimer.get() > 1000) {
+                fpsTimer.addAndGet(1000);
+                frame.setTitle("fps " + frames);
                 frames.set(0);
             }
         };
 
         int initialDelay = 0;
-        long period = 1_000_000_000L / ups;
-        executor.scheduleAtFixedRate(task, initialDelay, period, TimeUnit.NANOSECONDS);
+        long updatePeriod = 1_000_000_000L / ups;
+        long renderPeriod = 1_000_000_000L / fps;
+        executor.scheduleAtFixedRate(taskUpdate, initialDelay, updatePeriod, TimeUnit.NANOSECONDS);
+        executor.scheduleAtFixedRate(taskRender, initialDelay, renderPeriod, TimeUnit.NANOSECONDS);
 
         /*
 
@@ -271,6 +292,8 @@ public class Game extends Canvas implements  Runnable {
         background.update();
         screen.setMapOffset(background.getMapOffset());
 
+        uiManager.update();
+
         // TODO to remove
         mobs.forEach(Mob::update);
     }
@@ -299,6 +322,8 @@ public class Game extends Canvas implements  Runnable {
 
         // TODO to remove
         mobs.forEach((mob) -> mob.render(screen));
+
+        uiManager.render(screen);
 
         // Updating pixels that compose the image to be drawn on the JFrame
         System.arraycopy(screen.getPixels(), 0, pixels, 0, pixels.length);

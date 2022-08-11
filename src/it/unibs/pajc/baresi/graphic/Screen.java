@@ -5,6 +5,7 @@ import it.unibs.pajc.baresi.entity.Mob;
 import it.unibs.pajc.baresi.graphic.background.Background;
 import it.unibs.pajc.baresi.graphic.background.Layer;
 import it.unibs.pajc.baresi.graphic.sprite.Sprite;
+import it.unibs.pajc.baresi.graphic.ui.UIComponent;
 
 import java.util.Arrays;
 
@@ -70,6 +71,19 @@ public class Screen {
                 color = spritePixels[x + y * sprite.getSize()];
                 if (color != 0 && (xOffset + x) >= 0 && (xOffset + x) < width)
                     pixels[(x + xOffset) + (yOffset + y - sprite.getSize()) * width] = color;
+            }
+        }
+    }
+
+    public void renderUIComponent(int xOffset, int yOffset, UIComponent component) {
+        int[] componentPixels = component.getPixels();
+        int color;
+
+        for (int x = 0; x < component.getWidth(); x++) {
+            for (int y = 0; y < component.getHeight(); y++) {
+                color = componentPixels[x + y * component.getWidth()];
+                if (color != 0)
+                    pixels[(x + xOffset) + (y + yOffset) * width] = color;
             }
         }
     }

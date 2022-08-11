@@ -12,31 +12,25 @@ public class SpriteSheet {
     // It is necessary to add res to source folder:
     // go to File -> Project Structure -> Modules -> press Res and Mark as modules
     // 10 sprites per row, 4 different types of sprites
-    public static SpriteSheet dragonSheet = new SpriteSheet("/sheet/dragon_sheet.png", 64 * 10, 64 * 4);
-    public static SpriteSheet golemSheet = new SpriteSheet("/sheet/golem_sheet.png", 64 * 10, 64 * 4);
-    public static SpriteSheet adventureSheet = new SpriteSheet("/sheet/adventurer_sheet.png", 64 * 10, 64 * 4);
-    public static SpriteSheet skeletonSheet = new SpriteSheet("/sheet/skeleton_sheet.png", 64 * 10, 64 * 4);
-    public static SpriteSheet ghoulSheet = new SpriteSheet("/sheet/ghoul_sheet.png", 64 * 8, 64 * 4);
-    public static SpriteSheet miniGolemSheet = new SpriteSheet("/sheet/mini_golem_sheet.png", 64 * 8, 64 * 4);
+    public static SpriteSheet dragonSheet = new SpriteSheet("/sheet/dragon_sheet.png");
+    public static SpriteSheet golemSheet = new SpriteSheet("/sheet/golem_sheet.png");
+    public static SpriteSheet adventureSheet = new SpriteSheet("/sheet/adventurer_sheet.png");
+    public static SpriteSheet skeletonSheet = new SpriteSheet("/sheet/skeleton_sheet.png");
+    public static SpriteSheet ghoulSheet = new SpriteSheet("/sheet/ghoul_sheet.png");
+    public static SpriteSheet miniGolemSheet = new SpriteSheet("/sheet/mini_golem_sheet.png");
 
-    public SpriteSheet(String path, int size) {
-        this(path, size, size);
-    }
-
-    public SpriteSheet(String path, int width, int height) {
+    public SpriteSheet(String path) {
         this.path = path;
-        this.width = width;
-        this.height = height;
-        pixels = new int[width * height];
         load();
     }
 
     private void load() {
         try {
             BufferedImage image = ImageIO.read(SpriteSheet.class.getResource(path));
-            int w = image.getWidth();
-            int h = image.getHeight();
-            image.getRGB(0, 0, w, h, pixels, 0, width);
+            width = image.getWidth();
+            height = image.getHeight();
+            pixels = new int[width * height];
+            image.getRGB(0, 0, width, height, pixels, 0, width);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
