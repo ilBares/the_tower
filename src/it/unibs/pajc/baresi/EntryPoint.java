@@ -23,7 +23,7 @@ public class EntryPoint {
         GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
         Rectangle bounds = gd.getDefaultConfiguration().getBounds();
 
-        int scale = (int) (Math.min(bounds.getWidth() / width, bounds.getHeight() / height));
+        int scale = (int) (Math.min(bounds.getWidth() / width, (bounds.getHeight() - 80) / height));
         String title = "The Tower";
 
         // initializing the game
