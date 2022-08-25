@@ -1,11 +1,10 @@
 package it.unibs.pajc.baresi.graphic;
 
 import it.unibs.pajc.baresi.controller.Game;
-import it.unibs.pajc.baresi.entity.Mob;
+import it.unibs.pajc.baresi.graphic.asset.Asset;
 import it.unibs.pajc.baresi.graphic.background.Background;
 import it.unibs.pajc.baresi.graphic.background.Layer;
-import it.unibs.pajc.baresi.graphic.sprite.Sprite;
-import it.unibs.pajc.baresi.graphic.ui.UIComponent;
+import it.unibs.pajc.baresi.graphic.asset.sprite.Sprite;
 
 import java.util.Arrays;
 
@@ -61,21 +60,22 @@ public class Screen {
         }
     }
 
-    public void renderMob(int xOffset, int yOffset, Sprite sprite) {
-        int[] spritePixels = sprite.getPixels();
+    public void renderAsset(int xOffset, int yOffset, Asset asset) {
+        int[] spritePixels = asset.getPixels();
         int color;
         xOffset -= mapOffset;
 
-        for (int x = 0; x < sprite.getSize(); x++) {
-            for (int y = 0; y < sprite.getSize(); y++) {
-                color = spritePixels[x + y * sprite.getSize()];
+        for (int x = 0; x < asset.getWidth(); x++) {
+            for (int y = 0; y < asset.getHeight(); y++) {
+                color = spritePixels[x + y * asset.getWidth()];
                 if (color != 0 && (xOffset + x) >= 0 && (xOffset + x) < width)
-                    pixels[(x + xOffset) + (yOffset + y - sprite.getSize()) * width] = color;
+                    pixels[(x + xOffset) + (yOffset + y - asset.getHeight()) * width] = color;
             }
         }
     }
 
-    public void renderUIComponent(int xOffset, int yOffset, UIComponent component) {
+    /*
+    public void renderUIComponent(int xOffset, int yOffset, UIButton component) {
         int[] componentPixels = component.getPixels();
         int color;
 
@@ -88,32 +88,13 @@ public class Screen {
         }
     }
 
+     */
+
+    ///
+    /// Getters and Setters
+    ///
     public void setMapOffset(int mapOffset) {
         this.mapOffset = mapOffset;
-    }
-
-    /**
-     * Fills pixels array with black pixel.
-     */
-    public void clear() {
-        Arrays.fill(pixels, 0x000000);
-    }
-
-    //
-    // Getters
-    //
-    /**
-     * @return width of the screen
-     */
-    public int getWidth() {
-        return width;
-    }
-
-    /**
-     * @return height of the screen
-     */
-    public int getHeight() {
-        return height;
     }
 
     /**
@@ -123,4 +104,10 @@ public class Screen {
         return pixels;
     }
 
+    /**
+     * Fills pixels array with black pixel.
+     */
+    public void clear() {
+        Arrays.fill(pixels, 0x000000);
+    }
 }

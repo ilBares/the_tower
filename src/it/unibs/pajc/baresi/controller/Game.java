@@ -1,24 +1,17 @@
 package it.unibs.pajc.baresi.controller;
 
-import it.unibs.pajc.baresi.entity.Mob;
-import it.unibs.pajc.baresi.graphic.sprite.*;
 import it.unibs.pajc.baresi.graphic.ui.UIManager;
 import it.unibs.pajc.baresi.input.Keyboard;
 import it.unibs.pajc.baresi.graphic.Screen;
 import it.unibs.pajc.baresi.graphic.background.Background;
 import it.unibs.pajc.baresi.input.Mouse;
+import it.unibs.pajc.baresi.level.Level;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
-import java.util.LinkedList;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Class necessary to handle principle aspects of the game.
@@ -28,101 +21,94 @@ import java.util.concurrent.atomic.AtomicLong;
  * @see Screen
  * @see Background
  */
-public class Game extends Canvas implements  Runnable {
+public class Game extends Canvas implements Runnable {
+
+    // swing and awt components
     private final JFrame frame;
-    private int width, height;
+    private final Font minecraft;
+
+    // game dimensions
+    // window dimensions = gameDimensions * scale
+    private int gameWidth, gameHeight;
     private double scale;
 
+    // game title
     private String  title;
 
-    public long ups = 120L;
+    // updates per second
+    public int ups = 120;
 
+    // thread used to run the game
     private Thread thread;
-    private final Keyboard key;
-    private boolean running;
-    private Screen screen;
 
-    // todo ui
+    // key used to handle keyboard input
+    private final Keyboard key;
+    private Screen screen;
     private static UIManager uiManager;
 
-    // todo to remove
-    // todo change with level
-    private LinkedList<Mob> mobs;
-
-    private Background background;
-    // paths relative to background images
-    private final String[][] paths = {
-            {
-                "/background/sky/sky.png",
-            },
-            {
-                "/background/clouds/clouds.png",
-            },
-            {
-                "/background/mountains/mountains_1.png",
-                "/background/mountains/mountains_2.png",
-                "/background/mountains/mountains_3.png",
-                "/background/mountains/mountains_4.png",
-                "/background/mountains/mountains_5.png",
-                "/background/mountains/mountains_6.png",
-                "/background/mountains/mountains_7.png",
-                "/background/mountains/mountains_8.png",
-            },
-            {
-                "/background/ground/ground_tower.png",
-            },
-
-    };
-
+    // image created using pixels array
     private BufferedImage image;
     private int[] pixels;
 
+    private Background background;
+    private static Level level;
+    private boolean running;
 
+    ///
+    /// Constructor
+    ///
     /**
      * Game class constructor.
      *
-     * @param height    height before applying the scale
-     * @param width     width before applying the scale
-     * @param scale     scale to fit the {@code JFrame} size
-     * @param title     title of the game
+     * @param gameHeight    gameHeight before applying the scale
+     * @param gameWidth     gameWidth before applying the scale
+     * @param scale         scale to fit the {@code JFrame} size
+     * @param title         title of the game
      */
-    public Game(int width, int height, double scale, String title) {
-        this.width = width;
-        this.height = height;
+    public Game(int gameWidth, int gameHeight, double scale, String title) {
+        this.gameWidth = gameWidth;
+        this.gameHeight = gameHeight;
         this.scale = scale;
+
         this.title = title;
         this.running = false;
         frame = new JFrame();
 
+        // setting game font
+        minecraft = new Font("Minecraftia 2.0", Font.PLAIN, 40);
+
         ///
-        /// handling keyboard input
+        /// setting input handlers
         ///
         key = new Keyboard();
         addKeyListener(key);
-
-        ///
-        /// handling mouse input
-        ///
         Mouse mouse = new Mouse();
         addMouseListener(mouse);
         addMouseMotionListener(mouse);
 
-        screen = new Screen(width, height);
+        ///
+        /// setting graphic handlers
+        ///
+        background = new Background(
+                key, gameWidth, scale,
+                new String[][] {Background.SKY, Background.MOUNTAINS, Background.CLOUDS, Background.GROUND}
+        );
+
+        // TODO ADD CONST
+        level = new Level(new Point(0, gameHeight - 15), new Point(1200, gameHeight - 15));
+        screen = new Screen(gameWidth, gameHeight);
         uiManager = new UIManager();
 
-        background = new Background(width, height, scale, key, paths);
-
-        mobs = new LinkedList<>();
-
-        image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+        // image printed on the screen with specific scale
+        image = new BufferedImage(gameWidth, gameHeight, BufferedImage.TYPE_INT_RGB);
         pixels = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
     }
 
     /**
-     * Initializes {@code image}, {@code pixels} and all stuff needed by the game.
+     * Initializes the {@code frame}.
      */
     public void initialize() {
-        Dimension size = new Dimension((int) (width * scale), (int) (height * scale));
+        Dimension size = new Dimension((int) (gameWidth * scale), (int) (gameHeight * scale));
         frame.setPreferredSize(size);
 
         frame.add(this);
@@ -138,31 +124,18 @@ public class Game extends Canvas implements  Runnable {
         frame.setVisible(true);
 
         requestFocus();
-
-        // todo to remove
-        Sprite dragon = new DragonSprite(64);
-        mobs.push(new Mob(400, height - 18, 0.30, dragon));
-
-        Sprite golem = new GolemSprite(64);
-        mobs.push(new Mob(70, height - 18, 0.15, golem));
-
-        Sprite adventurer = new AdventurerSprite(64);
-        mobs.push(new Mob(130, height - 18, 0.25, adventurer));
-
-        Sprite mini = new MiniGolemSprite(64);
-        mobs.push(new Mob(190, height - 18, 0.35, mini));
-
-        Sprite skeleton = new SkeletonSprite(64);
-        mobs.push(new Mob(1100, height - 18, -0.2, skeleton));
-
-        Sprite ghoul = new GhoulSprite(64);
-        mobs.push(new Mob(500, height - 18, -0.15, ghoul));
     }
 
-    public UIManager getUiManager() {
-        return uiManager;
+    ///
+    /// Getters
+    ///
+    public static Level getLevel() {
+        return level;
     }
 
+    ///
+    /// Handling Game thread
+    ///
     /**
      * Runs "Display" thread.
      */
@@ -196,6 +169,10 @@ public class Game extends Canvas implements  Runnable {
     @Override
     public void run() {
         /*
+
+        ///
+        /// Using executor
+        ///
         AtomicLong timer = new AtomicLong(System.currentTimeMillis());
 
         AtomicInteger frames = new AtomicInteger();
@@ -234,15 +211,11 @@ public class Game extends Canvas implements  Runnable {
 
          */
 
-
-        ///
-        /// WITHOUT EXECUTOR
-        ///
         long lastTime = System.nanoTime();
         long timer = System.currentTimeMillis();
 
+        // used to count fps
         int frames = 0;
-        int updates = 0;
 
         // 1_000_000_000.0 indicates 1 second,
         // "ns" indicates every how many seconds
@@ -263,7 +236,6 @@ public class Game extends Canvas implements  Runnable {
                 /// updating logical part
                 ///
                 update();
-                updates++;
 
                 ///
                 /// updating graphical part
@@ -273,9 +245,9 @@ public class Game extends Canvas implements  Runnable {
 
                 if (System.currentTimeMillis() - timer > 1000) {
                     timer += 1000;
+
                     // TODO to remove
                     frame.setTitle(frames + " fps");
-                    updates = 0;
                     frames = 0;
                 }
             }
@@ -284,6 +256,9 @@ public class Game extends Canvas implements  Runnable {
         stop();
     }
 
+    ///
+    /// Updating and Rendering
+    ///
     /**
      * Updates the game, equivalent to the concept of "step next".
      */
@@ -291,11 +266,8 @@ public class Game extends Canvas implements  Runnable {
         key.update();
         background.update();
         screen.setMapOffset(background.getMapOffset());
-
+        level.update();
         uiManager.update();
-
-        // TODO to remove
-        mobs.forEach(Mob::update);
     }
 
     /**
@@ -309,6 +281,7 @@ public class Game extends Canvas implements  Runnable {
         // we want to apply it ups time every second (not immediately)
         // buffer strategy stores temporary data in RAM
         BufferStrategy bs = getBufferStrategy();
+
         if (bs == null) {
             // triple buffering
             // one buffer is the buffer to display, other two buffers are
@@ -318,27 +291,28 @@ public class Game extends Canvas implements  Runnable {
         }
 
         screen.clear();
+
+        // rendering pixels
         background.render(screen);
+        level.render(screen);
 
-        // TODO to remove
-        mobs.forEach((mob) -> mob.render(screen));
-
-        uiManager.render(screen);
-
-        // Updating pixels that compose the image to be drawn on the JFrame
+        // updating pixels that compose the image to be drawn on the JFrame
         System.arraycopy(screen.getPixels(), 0, pixels, 0, pixels.length);
 
-        // Drawing image on the JFrame
+        // drawing image on the JFrame
         Graphics2D g2 = (Graphics2D) bs.getDrawGraphics();
-        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+        // g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g2.setColor(Color.BLACK);
         g2.drawImage(image, 0, 0, getWidth(), getHeight(), null);
 
-        // TODO to remove
-        // g2.setColor(Color.WHITE);
-        // g2.setFont(new Font("Verdana", Font.PLAIN, 10));
-        // g2.drawString(frame.getTitle(), 5, 15);
-        //
+        g2.setColor(Color.BLACK);
+        g2.setFont(minecraft);
+
+        // TODO TO CHANGE
+        g2.drawString(level.getMoney() + "", getWidth() - 100, 75);
+
+        uiManager.render(g2);
 
         g2.dispose();
 
@@ -346,3 +320,5 @@ public class Game extends Canvas implements  Runnable {
         bs.show();
     }
 }
+
+

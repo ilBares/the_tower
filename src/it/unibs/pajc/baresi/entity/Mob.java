@@ -1,114 +1,170 @@
 package it.unibs.pajc.baresi.entity;
 
 import it.unibs.pajc.baresi.graphic.Screen;
-import it.unibs.pajc.baresi.graphic.sprite.Sprite;
-import it.unibs.pajc.baresi.input.Mouse;
+import it.unibs.pajc.baresi.graphic.asset.sprite.Sprite;
 
 import java.awt.*;
 
+/*
+ * ogni truppa ha un tempo di caricamento (almeno mezzo secondo)
+ * quando mando la richiesta al server per la truppa, aggiorna tutti
+ * i client con la truppa da aggiungere e il momento in cui ha ricevuto la richiesta
+ * (currentTimeMillis) oppure usando i nanoseconds
+ * quando i client ricevono la richiesta, settano il timer mancante per il caricamento
+ * della truppa a quello necessario per arrivare al suo tempo di caricamento.
+ * es in secondi:
+ *
+ * Client1 richiede una truppa al secondo 1 con tempo di caricamento 50
+ * il server riceve la richiesta al secondo 3
+ * il server invia a tutti l'aggiornamento con (truppa, 3)
+ * il Client1 riceve la richiesta al secondo 5, setta il timer a 50 + 3
+ * il Client2 riceve la richiesta al secondo 6, setta il timer a 50 + 3
+ * per sapere quanto manca basta fare (tempoCaricamento - (currentTimeMillis - timerServer)
+ *  es: 50 - (6 - 3)
+ *
+ * usa currentTimeMillis (NON System.nanoTime())
+ */
+
 public class Mob extends Entity {
 
-    public static final int GAP = 18;
-    private double dx;
-    private boolean moving;
-    private int anim = 0;
-    /*
-     * ogni truppa ha un tempo di caricamento (almeno mezzo secondo)
-     * quando mando la richiesta al server per la truppa, aggiorna tutti
-     * i client con la truppa da aggiungere e il momento in cui ha ricevuto la richiesta
-     * (currentTimeMillis) oppure usando i nanoseconds
-     * quando i client ricevono la richiesta, settano il timer mancante per il caricamento
-     * della truppa a quello necessario per arrivare al suo tempo di caricamento.
-     * es in secondi:
-     *
-     * Client1 richiede una truppa al secondo 1 con tempo di caricamento 50
-     * il server riceve la richiesta al secondo 3
-     * il server invia a tutti l'aggiornamento con (truppa, 3)
-     * il Client1 riceve la richiesta al secondo 5, setta il timer a 50 + 3
-     * il Client2 riceve la richiesta al secondo 6, setta il timer a 50 + 3
-     * per sapere quanto manca basta fare (tempoCaricamento - (currentTimeMillis - timerServer)
-     *  es: 50 - (6 - 3)
-     *
-     * usa currentTimeMillis (NON System.nanoTime())
-     */
-    protected Sprite model;
-    protected Sprite[] sprites;
-    private int count;
-    private int index;
+    public enum State {
+        IDLE, MOVE, ATTACK, DEATH
+    }
 
-    public Mob(int x, int y, double dx, Sprite model) {
-        this.x = x;
-        this.y = y;
-        this.dx = dx;
+    public static final double VERY_SLOW = 0.15;
+    public static final double SLOW = 0.20;
+    public static final double MEDIUM = 0.25;
+    public static final double FAST = 0.30;
+    public static final double VERY_FAST = 0.35;
+
+    public static final int GAP = 15;
+    private double dx;
+    private int counter;
+
+    protected Sprite model;
+    private Sprite[] sprites;
+    private int anim;
+
+    // TODO needed by the server
+    private int msLoading;
+
+    private double health;
+    private double damage;
+    private int price;
+
+    protected State state;
+
+    private Mob prev;
+
+    private boolean alive;
+
+    private boolean wait;
+
+
+    public Mob(Point spawn, double speed, int msLoading, double health, double damage, int price, boolean enemy, Sprite model) {
+        this.x = spawn.getX();
+        this.y = spawn.getY();
+        this.dx = (enemy ? -1 : 1) * speed;
+        this.msLoading = msLoading;
+        this.health = health;
+        this.damage = damage;
         this.model = model;
-        // TODO to replace with enum
-        state = 0;
-        index = 0;
+        this.price = price;
+
+        alive = true;
         idle();
     }
-    // TODO add Rectangle
-
-    // TODO change with Enum
-    // directions:
-    // 0 = right
-    // 1 = left
-    protected int direction;
-
-    // TODO change with Enum
-    // states:
-    // 0 = idle
-    // 1 = moving
-    // 2 = attack
-    // 3 = dying
-    protected int state;
-    protected boolean first;
 
     public void idle() {
-        sprites = model.getIdle();
-        count = sprites.length;
-        state = 0;
+        if (state != State.IDLE) {
+            state = State.IDLE;
+            anim = 0;
+            counter = 0;
+            sprites = model.getIdle();
+        }
         // set state to idle
-        moving = false;
-        anim = 0;
     }
 
     public void move() {
-        sprites = model.getMove();
-        count = sprites.length;
-        state = 1;
-        moving = true;
+        // check if the previous animation is completed
+        if (anim == sprites.length - 1 && state != State.MOVE) {
+            state = State.MOVE;
+            anim = 0;
+            counter = 0;
+            sprites = model.getMove();
+        }
         // set state to move
         // set dx to 1
         // if !collision
-        anim = 0;
     }
 
-    public void attack() {
-        sprites = model.getAttack();
-        count = sprites.length;
-        state = 2;
-        moving = false;
-        // set state to attack
-        // set dx to 0
-        anim = 0;
+    public void attack(Mob opponent) {
+        if (state != State.ATTACK) {
+            state = State.ATTACK;
+            anim = 0;
+            counter = 0;
+            sprites = model.getAttack();
+        }
+
+        // mob attacks only when the attack animation is ended
+        if (opponent != null && opponent.isAlive() && anim == sprites.length -1) {
+            opponent.hit(damage);
+        }
     }
 
     public void death() {
-        sprites = model.getDeath();
-        count = sprites.length;
-        state = 3;
-        moving = false;
-        // set state to death
-        anim = 0;
-        remove();
+        if (state != State.DEATH) {
+            alive = false;
+            state = State.DEATH;
+            anim = 0;
+            counter = 0;
+            sprites = model.getDeath();
+        }
+
+        if (anim == sprites.length - 1) {
+            remove();
+        }
     }
 
-    boolean wait = false;
+    public int getPrice() {
+        return price;
+    }
+
+    public Mob getPrev() {
+        return prev;
+    }
+
+    public State getState() {
+        return state;
+    }
+
+    public void setPrev(Mob prev) {
+        this.prev = prev;
+    }
+
+    public boolean isMoving() {
+        return state == State.MOVE;
+    }
+
+    public boolean isAlive() {
+        return alive;
+    }
+
+    @Override
+    public boolean isRemoved() {
+        return removed;
+        // return (index == sprites.length - 1) && removed;
+    }
+
+    public void hit(double damage) {
+        health -= damage;
+    }
+
     @Override
     public void update() {
-
+        /*
         if (!wait) {
-            if (Mouse.getButton() == 1) {
+            if (Mouse.getButton() == MouseEvent.BUTTON1) {
                 wait = true;
                 if (state == 0 || state == 3) {
                     attack();
@@ -117,7 +173,7 @@ public class Mob extends Entity {
                 }
             }
 
-            if (Mouse.getButton() == 3) {
+            if (Mouse.getButton() == MouseEvent.BUTTON3) {
                 wait = true;
                 if (state == 0) {
                     move();
@@ -125,30 +181,33 @@ public class Mob extends Entity {
                     idle();
                 }
             }
-        } else if (Mouse.getButton() == -1){
+        } else if (Mouse.getButton() == MouseEvent.NOBUTTON){
             wait = false;
         }
 
-        // todo remove
-        if (moving) x += dx;
+         */
 
-        index = (++anim / (GAP)) % count;
-        anim %= GAP * count;
+        // todo remove
+        if (isMoving()) x += dx;
+
+        anim = (++counter / (GAP)) % sprites.length;
+
+        counter %= GAP * (sprites.length - 1);
+
+        //  if (state == 2 && opponent != null) opponent.hit(damage);
+
+        if (health <= 0) death();
     }
 
     @Override
     public void render(Screen screen) {
-        screen.renderMob((int) x, (int) y, sprites[index]);
+        screen.renderAsset((int) x, (int) y, sprites[anim]);
     }
 
     @Override
     public Rectangle getBounds() {
-        return new Rectangle((int) x, (int) y, model.getSize() / 2, model.getSize() / 2);
-    }
-
-    private boolean collision() {
-        boolean collision = false;
-
-        return collision;
+        return new Rectangle((int) x, (int) y, (int) (model.getWidth() / 3. * 2), model.getHeight());
     }
 }
+
+

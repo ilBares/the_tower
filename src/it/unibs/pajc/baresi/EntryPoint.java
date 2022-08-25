@@ -3,6 +3,8 @@ package it.unibs.pajc.baresi;
 import it.unibs.pajc.baresi.controller.Game;
 
 import java.awt.*;
+import java.io.File;
+import java.io.IOException;
 
 /**
  * Entry Point of the Java project.
@@ -20,8 +22,20 @@ public class EntryPoint {
         int height = 360;
         int width = height / 9 * 16;
 
-        GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
+        ///
+        /// setting graphics settings
+        ///
+        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+        GraphicsDevice gd = ge.getDefaultScreenDevice();
         Rectangle bounds = gd.getDefaultConfiguration().getBounds();
+
+        try {
+            // font used in the game
+            Font font = Font.createFont(Font.TRUETYPE_FONT, new File("res/font/minecraft.ttf"));
+            ge.registerFont(font);
+        } catch (FontFormatException | IOException e) {
+            throw new RuntimeException(e);
+        }
 
         double scale = Math.min(bounds.getWidth() / width, bounds.getHeight() / height);
         String title = "The Tower";

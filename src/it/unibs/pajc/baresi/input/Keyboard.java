@@ -35,6 +35,12 @@ public class Keyboard implements KeyListener {
         return right;
     }
 
+    public boolean anyKey() {
+        for (boolean b : keys)
+            if (b) return true;
+        return false;
+    }
+
     @Override
     public void keyTyped(KeyEvent e) {
 

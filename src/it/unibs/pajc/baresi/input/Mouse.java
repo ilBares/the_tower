@@ -8,7 +8,7 @@ public class Mouse implements MouseListener, MouseMotionListener {
     private static int mouseX = -1;
     private static int mouseY = -1;
     // mouse button
-    private static int mouseB  = -1;
+    private static int mouseB  = MouseEvent.NOBUTTON;
 
     public static int getX() {
         return mouseX;
@@ -32,7 +32,7 @@ public class Mouse implements MouseListener, MouseMotionListener {
 
     @Override
     public void mouseReleased(MouseEvent e) {
-        mouseB = -1; 
+        mouseB = MouseEvent.NOBUTTON;
     }
 
     @Override

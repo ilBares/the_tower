@@ -1,5 +1,6 @@
 package it.unibs.pajc.baresi.graphic.background;
 
+import it.unibs.pajc.baresi.controller.Game;
 import it.unibs.pajc.baresi.input.Keyboard;
 import it.unibs.pajc.baresi.graphic.Screen;
 import it.unibs.pajc.baresi.input.Mouse;
@@ -9,22 +10,38 @@ import java.util.Arrays;
 import java.util.Comparator;
 
 public class Background {
-    private int width, height;
-    private double scale;
-    private double unit = 1120.;
+
+    private double unit;
     private Keyboard input;
     private Layer[] layers;
     private double mapOffset;
     private final double dx = 1;
 
+    private int gameWidth;
+    private double gameScale;
+
+    // paths relative to background images
+    public static final String[] SKY = { "/background/sky/sky.png" };
+    public static final String[] MOUNTAINS = {
+        "/background/mountains/mountains_1.png",
+        "/background/mountains/mountains_2.png",
+        "/background/mountains/mountains_3.png",
+        "/background/mountains/mountains_4.png",
+        "/background/mountains/mountains_5.png",
+        "/background/mountains/mountains_6.png",
+        "/background/mountains/mountains_7.png",
+        "/background/mountains/mountains_8.png",
+    };
+    public static final String[] CLOUDS = { "/background/clouds/clouds.png" };
+    public static final String[] GROUND = { "/background/ground/ground.png" };
+
     //
     // Constructor
     //
-    public Background(int width, int height, double scale, Keyboard input, String[][] paths) {
-        this.width = width;
-        this.height = height;
+    public Background(Keyboard input, int gameWidth, double gameScale, String[][] paths) {
         this.input = input;
-        this.scale = scale;
+        this.gameWidth = gameWidth;
+        this.gameScale = gameScale;
         mapOffset = 0;
         initialize(paths);
     }
@@ -37,17 +54,23 @@ public class Background {
 
         // sorts the layer array by width
         Arrays.sort(layers, Comparator.comparing(Layer::getWidth));
-        //
+
         unit = layers[layers.length - 2].getWidth();
     }
 
+    ///
+    /// Getters
+    ///
     public int getMapOffset() {
-        return (int) (mapOffset / ((unit - width) / (layers[layers.length - 1].getWidth() - width)));
+        return (int) (mapOffset / ((unit - gameWidth) / (layers[layers.length - 1].getWidth() - gameWidth)));
     }
 
+    ///
+    /// Updating and Rendering
+    ///
     public void update() {
-        if ((input.isLeft() || (Mouse.getX() < width * scale * 0.02 && Mouse.getX() >= 0)) && mapOffset > 0) mapOffset -= dx;
-        if ((input.isRight() || Mouse.getX() > width * scale * 0.98) && mapOffset < (unit - width)) mapOffset += dx;
+        if ((input.isLeft() || (Mouse.getX() < gameWidth * gameScale * 0.01 && Mouse.getX() >= 0)) && mapOffset > 0) mapOffset -= dx;
+        if ((input.isRight() || Mouse.getX() > gameWidth * gameScale * 0.99) && mapOffset < (unit - gameWidth)) mapOffset += dx;
 
         for (Layer l : layers)
             l.update();
@@ -56,7 +79,7 @@ public class Background {
     public void render(Screen screen) {
         // needed to set only empty pixels
         for (int i = layers.length - 1; i >= 0; i--) {
-            layers[i].render((int) (mapOffset / ((unit - width) / (layers[i].getWidth() - width))), screen);
+            layers[i].render((int) (mapOffset / ((unit - gameWidth) / (layers[i].getWidth() - gameWidth))), screen);
         }
     }
 }

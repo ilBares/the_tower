@@ -7,7 +7,7 @@ import java.awt.*;
 public abstract class Entity {
 
     protected double x, y;
-    private boolean removed = false;
+    protected boolean removed = false;
 
     public void update() { }
 

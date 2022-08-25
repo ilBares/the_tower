@@ -1,38 +1,53 @@
 package it.unibs.pajc.baresi.graphic.ui;
 
-import it.unibs.pajc.baresi.graphic.Screen;
-
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class UIManager {
-
-    private List<UIComponent> components = new ArrayList<>();
+    private List<UIButton> components = new ArrayList<>();
 
     public UIManager() {
-        components.add(UIComponent.brnBack);
-        components.add(UIComponent.btnMiniGolem);
-        components.add(UIComponent.btnAdventurer);
-        components.add(UIComponent.btnDragon);
-        components.add(UIComponent.btnGolem);
+        UIButton btnMob = UIButton.btnMob;
+        UIButton btnBack = UIButton.btnBack;
+
+        components.add(btnMob);
+        components.add(btnBack);
+        components.add(UIButton.btnMiniGolem);
+        components.add(UIButton.btnAdventurer);
+        components.add(UIButton.btnDragon);
+        components.add(UIButton.btnGolem);
+
+        btnMob.setVisible(true);
+
+        btnMob.setUiButtonListener(new UIButtonListener() {
+            @Override
+            public void released(UIButton button) {
+                btnMob.setVisible(false);
+                components.forEach(b -> b.setVisible(true));
+            }
+        });
+
+        btnBack.setUiButtonListener(new UIButtonListener() {
+            @Override
+            public void released(UIButton button) {
+                components.stream().skip(1).forEach(b -> b.setVisible(false));
+                btnMob.setVisible(true);
+            }
+        });
     }
 
     public void update() {
-
+        components.forEach(UIButton::update);
     }
 
-    public void render(Screen screen) {
-        int x = screen.getWidth();
-        int y;
-        UIComponent c;
-
-        for (int i = 0; i < components.size(); i++) {
-            c = components.get(i);
-            x -= c.getWidth() + 10;
-            y = 10;
-            c.render(x, y, screen);
+    public void render(Graphics2D g2) {
+        for (UIButton c : components) {
+            if (c.isVisible()) {
+                c.render(g2);
+            }
         }
 
-        // components.forEach(c -> c.render(screen));
+        components.stream().filter(UIButton::isVisible).forEach(c -> c.render(g2));
     }
 }
