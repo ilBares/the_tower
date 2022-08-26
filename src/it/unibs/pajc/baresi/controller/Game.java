@@ -6,6 +6,7 @@ import it.unibs.pajc.baresi.graphic.Screen;
 import it.unibs.pajc.baresi.graphic.background.Background;
 import it.unibs.pajc.baresi.input.Mouse;
 import it.unibs.pajc.baresi.level.Level;
+import it.unibs.pajc.baresi.sound.Sound;
 
 import javax.swing.*;
 import java.awt.*;
@@ -43,6 +44,7 @@ public class Game extends Canvas implements Runnable {
 
     // key used to handle keyboard input
     private final Keyboard key;
+
     private Screen screen;
     private static UIManager uiManager;
 
@@ -124,6 +126,8 @@ public class Game extends Canvas implements Runnable {
         frame.setVisible(true);
 
         requestFocus();
+
+        playMusic();
     }
 
     ///
@@ -318,6 +322,10 @@ public class Game extends Canvas implements Runnable {
 
         // makes the next available buffer of BufferStrategy visible
         bs.show();
+    }
+
+    private void playMusic() {
+        Sound.play(Sound.SOUND_TRACK, true);
     }
 }
 

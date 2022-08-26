@@ -2,6 +2,7 @@ package it.unibs.pajc.baresi.entity;
 
 import it.unibs.pajc.baresi.graphic.Screen;
 import it.unibs.pajc.baresi.graphic.asset.sprite.Sprite;
+import it.unibs.pajc.baresi.sound.Sound;
 
 import java.awt.*;
 
@@ -60,16 +61,18 @@ public class Mob extends Entity {
 
     private boolean wait;
 
+    private int soundIndex;
 
-    public Mob(Point spawn, double speed, int msLoading, double health, double damage, int price, boolean enemy, Sprite model) {
+    public Mob(Point spawn, double speed, int msLoading, double health, double damage, int price, int soundIndex, Sprite model) {
         this.x = spawn.getX();
         this.y = spawn.getY();
-        this.dx = (enemy ? -1 : 1) * speed;
+        this.dx = speed;
         this.msLoading = msLoading;
         this.health = health;
         this.damage = damage;
         this.model = model;
         this.price = price;
+        this.soundIndex = soundIndex;
 
         alive = true;
         idle();
@@ -104,11 +107,14 @@ public class Mob extends Entity {
             anim = 0;
             counter = 0;
             sprites = model.getAttack();
+            wait = false;
         }
 
         // mob attacks only when the attack animation is ended
-        if (opponent != null && opponent.isAlive() && anim == sprites.length -1) {
-            opponent.hit(damage);
+        if (anim == sprites.length - 1) {
+            if (opponent != null && opponent.isAlive())
+                opponent.hit(damage);
+            wait = false;
         }
     }
 
@@ -197,6 +203,17 @@ public class Mob extends Entity {
         //  if (state == 2 && opponent != null) opponent.hit(damage);
 
         if (health <= 0) death();
+
+        playSE();
+    }
+
+    // play Sound Effect
+    private void playSE() {
+        // TODO playSE
+        if (state == State.ATTACK && anim == 0 && !wait) {
+            Sound.play(soundIndex, false);
+            wait = true;
+        }
     }
 
     @Override

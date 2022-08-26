@@ -6,6 +6,7 @@ import it.unibs.pajc.baresi.entity.MobList;
 import it.unibs.pajc.baresi.entity.Tower;
 import it.unibs.pajc.baresi.graphic.Screen;
 import it.unibs.pajc.baresi.graphic.asset.sprite.*;
+import it.unibs.pajc.baresi.sound.Sound;
 
 import java.awt.*;
 import java.util.Iterator;
@@ -55,7 +56,7 @@ public class Level {
                 50,
                 40,
                 25,
-                false,
+                Sound.MINI_GOLEM_ATTACK,
                 new MiniGolemSprite(64)
         );
 
@@ -70,7 +71,7 @@ public class Level {
                 125,
                 50,
                 75,
-                false,
+                Sound.ADVENTURER_ATTACK,
                 new AdventurerSprite(64));
 
         addTroop(adventurer);
@@ -84,7 +85,7 @@ public class Level {
                 200,
                 100,
                 150,
-                false,
+                Sound.DRAGON_ATTACK,
                 new DragonSprite(64));
 
         addTroop(dragon);
@@ -96,9 +97,9 @@ public class Level {
                 Mob.SLOW,
                 2000,
                 400,
-                80,
+                40,
                 300,
-                false,
+                Sound.GOLEM_ATTACK,
                 new GolemSprite(64));
 
         addTroop(golem);
@@ -107,12 +108,12 @@ public class Level {
     private void addSkeleton() {
         Mob skeleton = new Mob(
                 enemySpawn,
-                Mob.MEDIUM,
+                -Mob.MEDIUM,
                 500,
                 125,
                 30,
                 50,
-                true,
+                Sound.SKELETON_ATTACK,
                 new SkeletonSprite(64));
 
         addEnemy(skeleton);
@@ -121,12 +122,12 @@ public class Level {
     private void addGhoul() {
         Mob ghoul = new Mob(
                 enemySpawn,
-                Mob.SLOW,
+                -Mob.SLOW,
                 1500,
                 350,
                 40,
                 200,
-                true,
+                Sound.GHOUL_ATTACK,
                 new GhoulSprite(64));
 
         addEnemy(ghoul);

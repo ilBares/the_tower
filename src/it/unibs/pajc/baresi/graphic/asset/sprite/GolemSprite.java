@@ -22,7 +22,7 @@ public class GolemSprite extends Sprite {
         for (int i = 0; i < move.length; i++)
             move[i] = new GolemSprite(width, 1, i, SpriteSheet.golemSheet);
 
-        attack = new GolemSprite[10];
+        attack = new GolemSprite[5];
         for (int i = 0; i < attack.length; i++)
             attack[i] = new GolemSprite(width, 2, i, SpriteSheet.golemSheet);
 
