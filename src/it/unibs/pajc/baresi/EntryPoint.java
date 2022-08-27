@@ -37,7 +37,7 @@ public class EntryPoint {
             throw new RuntimeException(e);
         }
 
-        double scale = Math.min(bounds.getWidth() / width, bounds.getHeight() / height);
+        double scale = Math.min(Math.min(bounds.getWidth() / width, 1512), Math.min(bounds.getHeight() / height, 982));
         String title = "The Tower";
 
         // initializing the game
