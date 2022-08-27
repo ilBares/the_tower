@@ -71,19 +71,16 @@ public class UIButton {
         return height;
     }
 
-    public void changeColor() {
-        /*
-        for (int r = 0; r < height; r++) {
-            for (int c = 0; c < width; c++) {
-                if (image.getRGB(c, r) != 0)
-                    image.setRGB(c, r, image.getRGB(c, r) - 1);
-            }
-        }
-         */
+    public BufferedImage getImage() {
+        return image;
     }
 
-    public void restoreColor() {
-        image.setRGB(0, 0, width, height, defaultRGB, 0, width);
+    public int getX() {
+        return x;
+    }
+
+    public int getY() {
+        return y;
     }
 
     public void setUiButtonListener(UIButtonListener buttonListener) {
@@ -117,7 +114,9 @@ public class UIButton {
         }
     }
 
+    /*
     public void render(Graphics2D g2) {
         g2.drawImage(image, x, y, null);
     }
+     */
 }

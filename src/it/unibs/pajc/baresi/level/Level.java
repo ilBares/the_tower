@@ -14,7 +14,7 @@ import java.util.Random;
 
 public class Level {
 
-    public static final int MAX_MONEY = 500;
+    public static final int MAX_MONEY = 1000;
     public static final int MONEY = 10;
 
     private MobList mobList;
@@ -232,6 +232,10 @@ public class Level {
     private void updateMoney() {
         if (System.currentTimeMillis() - timer >= 1_000) {
             timer += 1_000;
+
+            // to avoid pause problem
+            timer = System.currentTimeMillis();
+
             if (money + MONEY < MAX_MONEY) money += MONEY;
         }
     }

@@ -11,7 +11,9 @@ import java.awt.event.KeyListener;
 public class Keyboard implements KeyListener {
     public static final int KEY_NUMBER = 120;
     private final boolean[] keys = new boolean[KEY_NUMBER];
-    private boolean left, right;
+    private boolean left, right, up, down;
+    private boolean enter;
+    private boolean escape;
 
     /**
      * Updates {@code left} and {@code right} variables based on KeyEvents.
@@ -19,6 +21,10 @@ public class Keyboard implements KeyListener {
     public void update() {
         right = keys[KeyEvent.VK_RIGHT] || keys[KeyEvent.VK_D];
         left = keys[KeyEvent.VK_LEFT] || keys[KeyEvent.VK_A];
+        up = keys[KeyEvent.VK_UP] || keys[KeyEvent.VK_W];
+        down = keys[KeyEvent.VK_DOWN] || keys[KeyEvent.VK_S];
+        enter = keys[KeyEvent.VK_ENTER] || keys[KeyEvent.VK_SPACE];
+        escape = keys[KeyEvent.VK_ESCAPE];
     }
 
     /**
@@ -33,6 +39,34 @@ public class Keyboard implements KeyListener {
      */
     public boolean isRight() {
         return right;
+    }
+
+    /**
+     * @return  true if Up key or W key are selected.
+     */
+    public boolean isUp() {
+        return up;
+    }
+
+    /**
+     * @return  true if Down key or S key are selected.
+     */
+    public boolean isDown() {
+        return down;
+    }
+
+    /**
+     * @return  true if Enter key or Space key are selected.
+     */
+    public boolean isEnter() {
+        return enter;
+    }
+
+    /**
+     * @return  true if Escape key is selected.
+     */
+    public boolean isEscape() {
+        return escape;
     }
 
     public boolean anyKey() {

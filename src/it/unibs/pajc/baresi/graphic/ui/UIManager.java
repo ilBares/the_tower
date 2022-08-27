@@ -1,22 +1,27 @@
 package it.unibs.pajc.baresi.graphic.ui;
 
+import it.unibs.pajc.baresi.graphic.Screen;
+import it.unibs.pajc.baresi.level.Level;
+
 import java.awt.*;
+import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.List;
 
 public class UIManager {
-    private List<UIButton> components = new ArrayList<>();
+    private List<UIButton> buttons = new ArrayList<>();
+    private UIText lblMoney;
 
-    public UIManager() {
+    public UIManager(int screenWidth) {
         UIButton btnMob = UIButton.btnMob;
         UIButton btnBack = UIButton.btnBack;
 
-        components.add(btnMob);
-        components.add(btnBack);
-        components.add(UIButton.btnMiniGolem);
-        components.add(UIButton.btnAdventurer);
-        components.add(UIButton.btnDragon);
-        components.add(UIButton.btnGolem);
+        buttons.add(btnMob);
+        buttons.add(btnBack);
+        buttons.add(UIButton.btnMiniGolem);
+        buttons.add(UIButton.btnAdventurer);
+        buttons.add(UIButton.btnDragon);
+        buttons.add(UIButton.btnGolem);
 
         btnMob.setVisible(true);
 
@@ -24,30 +29,38 @@ public class UIManager {
             @Override
             public void released(UIButton button) {
                 btnMob.setVisible(false);
-                components.forEach(b -> b.setVisible(true));
+                buttons.forEach(b -> b.setVisible(true));
             }
         });
 
         btnBack.setUiButtonListener(new UIButtonListener() {
             @Override
             public void released(UIButton button) {
-                components.stream().skip(1).forEach(b -> b.setVisible(false));
+                buttons.stream().skip(1).forEach(b -> b.setVisible(false));
                 btnMob.setVisible(true);
             }
         });
+
+        lblMoney = new UIText("", screenWidth - 100, 75, 40);
     }
 
     public void update() {
-        components.forEach(UIButton::update);
+        buttons.forEach(UIButton::update);
     }
 
-    public void render(Graphics2D g2) {
-        for (UIButton c : components) {
-            if (c.isVisible()) {
-                c.render(g2);
+    public void render(Graphics2D g2, Screen screen, String money) {
+        // rendering UI Buttons
+        for (UIButton btn : buttons) {
+            if (btn.isVisible()) {
+                screen.drawUIButton(g2, btn);
+                // c.render(g2);
             }
         }
 
-        components.stream().filter(UIButton::isVisible).forEach(c -> c.render(g2));
+        // components.stream().filter(UIButton::isVisible).forEach(btn -> btn.render(g2));
+        buttons.stream().filter(UIButton::isVisible).forEach(btn -> screen.drawUIButton(g2, btn));
+
+        lblMoney.setText(money);
+        screen.drawUIText(g2, lblMoney);
     }
 }

@@ -1,5 +1,6 @@
 package it.unibs.pajc.baresi.controller;
 
+import it.unibs.pajc.baresi.graphic.Home;
 import it.unibs.pajc.baresi.graphic.ui.UIManager;
 import it.unibs.pajc.baresi.input.Keyboard;
 import it.unibs.pajc.baresi.graphic.Screen;
@@ -24,9 +25,12 @@ import java.awt.image.DataBufferInt;
  */
 public class Game extends Canvas implements Runnable {
 
+    public enum State {
+        HOME, PLAY, QUIT;
+    }
+
     // swing and awt components
     private final JFrame frame;
-    private final Font minecraft;
 
     // game dimensions
     // window dimensions = gameDimensions * scale
@@ -56,6 +60,13 @@ public class Game extends Canvas implements Runnable {
     private static Level level;
     private boolean running;
 
+    // 0: menu
+    // 1: playing game
+    private State gameState;
+    private Home home;
+
+    private boolean pause;
+
     ///
     /// Constructor
     ///
@@ -75,9 +86,6 @@ public class Game extends Canvas implements Runnable {
         this.title = title;
         this.running = false;
         frame = new JFrame();
-
-        // setting game font
-        minecraft = new Font("Minecraftia 2.0", Font.PLAIN, 40);
 
         ///
         /// setting input handlers
@@ -99,11 +107,15 @@ public class Game extends Canvas implements Runnable {
         // TODO ADD CONST
         level = new Level(new Point(0, gameHeight - 15), new Point(1200, gameHeight - 15));
         screen = new Screen(gameWidth, gameHeight);
-        uiManager = new UIManager();
+        uiManager = new UIManager((int) (gameWidth * scale));
 
         // image printed on the screen with specific scale
         image = new BufferedImage(gameWidth, gameHeight, BufferedImage.TYPE_INT_RGB);
         pixels = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
+
+        home = new Home((int) (gameWidth * scale), (int) (gameHeight * scale));
+        gameState = State.HOME;
+        pause = false;
     }
 
     /**
@@ -154,11 +166,8 @@ public class Game extends Canvas implements Runnable {
      */
     public synchronized void stop() {
         running = false;
-        try {
-            thread.join();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        thread.interrupt();
+        System.exit(0);
     }
 
     /**
@@ -268,10 +277,29 @@ public class Game extends Canvas implements Runnable {
      */
     private void update() {
         key.update();
-        background.update();
-        screen.setMapOffset(background.getMapOffset());
-        level.update();
-        uiManager.update();
+        background.update(gameState == State.HOME);
+
+        if (key.isEscape()) {
+            gameState = State.HOME;
+            pause = true;
+        }
+
+        switch (gameState) {
+            case HOME -> {
+                gameState = home.update(key);
+
+                if (gameState == State.QUIT)
+                    stop();
+
+                if (gameState == State.PLAY)
+                    pause = false;
+            }
+            case PLAY -> {
+                screen.setMapOffset(background.getMapOffset());
+                level.update();
+                uiManager.update();
+            }
+        }
     }
 
     /**
@@ -294,29 +322,32 @@ public class Game extends Canvas implements Runnable {
             return;
         }
 
+        // drawing image on the JFrame
+        Graphics2D g2 = (Graphics2D) bs.getDrawGraphics();
+
         screen.clear();
+        background.render(screen);
+
 
         // rendering pixels
-        background.render(screen);
         level.render(screen);
+
 
         // updating pixels that compose the image to be drawn on the JFrame
         System.arraycopy(screen.getPixels(), 0, pixels, 0, pixels.length);
 
-        // drawing image on the JFrame
-        Graphics2D g2 = (Graphics2D) bs.getDrawGraphics();
-
         // g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        g2.setColor(Color.BLACK);
         g2.drawImage(image, 0, 0, getWidth(), getHeight(), null);
 
-        g2.setColor(Color.BLACK);
-        g2.setFont(minecraft);
+        if (gameState == State.PLAY) {
+            uiManager.render(g2, screen, level.getMoney() + "");
+        }
 
-        // TODO TO CHANGE
-        g2.drawString(level.getMoney() + "", getWidth() - 100, 75);
 
-        uiManager.render(g2);
+        if (gameState == State.HOME) {
+            home.render(g2, screen, pause);
+        }
+
 
         g2.dispose();
 

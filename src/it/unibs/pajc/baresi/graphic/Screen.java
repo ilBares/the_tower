@@ -5,7 +5,11 @@ import it.unibs.pajc.baresi.graphic.asset.Asset;
 import it.unibs.pajc.baresi.graphic.background.Background;
 import it.unibs.pajc.baresi.graphic.background.Layer;
 import it.unibs.pajc.baresi.graphic.asset.sprite.Sprite;
+import it.unibs.pajc.baresi.graphic.ui.UIButton;
+import it.unibs.pajc.baresi.graphic.ui.UIText;
 
+import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.util.Arrays;
 
 /**
@@ -74,6 +78,15 @@ public class Screen {
         }
     }
 
+    public void drawUIText(Graphics2D g2, UIText lbl) {
+        g2.setColor(lbl.getColor());
+        g2.setFont(lbl.getFont());
+        g2.drawString(lbl.getText(), lbl.getX(), lbl.getY());
+    }
+
+    public void drawUIButton(Graphics2D g2, UIButton btn) {
+        g2.drawImage(btn.getImage(), btn.getX(), btn.getY(), null);
+    }
     /*
     public void renderUIComponent(int xOffset, int yOffset, UIButton component) {
         int[] componentPixels = component.getPixels();

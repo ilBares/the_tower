@@ -68,9 +68,9 @@ public class Background {
     ///
     /// Updating and Rendering
     ///
-    public void update() {
-        if ((input.isLeft() || (Mouse.getX() < gameWidth * gameScale * 0.01 && Mouse.getX() >= 0)) && mapOffset > 0) mapOffset -= dx;
-        if ((input.isRight() || Mouse.getX() > gameWidth * gameScale * 0.99) && mapOffset < (unit - gameWidth)) mapOffset += dx;
+    public void update(boolean home) {
+        if (!home && (input.isLeft() || (Mouse.getX() < gameWidth * gameScale * 0.01 && Mouse.getX() >= 0)) && mapOffset > 0) mapOffset -= dx;
+        if (!home && (input.isRight() || Mouse.getX() > gameWidth * gameScale * 0.99) && mapOffset < (unit - gameWidth)) mapOffset += dx;
 
         for (Layer l : layers)
             l.update();

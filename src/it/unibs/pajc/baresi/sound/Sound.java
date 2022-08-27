@@ -5,6 +5,7 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 import java.net.URL;
 
+// TODO to complete https://www.youtube.com/watch?v=1O8tFKtZYTM&list=PL_QPQmz5C6WUF-pOQDsbsKbaBZqXj4qSq&index=38
 public class Sound {
       public static int SOUND_TRACK = 0;
       public static int MINI_GOLEM_ATTACK = 1;
