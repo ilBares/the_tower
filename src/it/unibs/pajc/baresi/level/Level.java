@@ -15,7 +15,7 @@ import java.util.Random;
 public class Level {
 
     public static final int MAX_MONEY = 1000;
-    public static final int MONEY = 10;
+    public static final int MONEY = 50;
 
     private MobList mobList;
 
@@ -42,6 +42,8 @@ public class Level {
         mobList = new MobList();
 
         tower = new Tower(new Point(enemySpawn.x - 100, enemySpawn.y), 1000);
+
+        mobList.setTower(tower);
         // TODO bomb = new Bomb(new Point(enemySpawn.x - 80, enemySpawn.y + 30));
     }
 
@@ -83,7 +85,7 @@ public class Level {
                 Mob.FAST,
                 1500,
                 200,
-                100,
+                110,
                 150,
                 Sound.DRAGON_ATTACK,
                 new DragonSprite(64));
@@ -97,7 +99,7 @@ public class Level {
                 Mob.SLOW,
                 2000,
                 400,
-                40,
+                20,
                 300,
                 Sound.GOLEM_ATTACK,
                 new GolemSprite(64));
@@ -196,7 +198,7 @@ public class Level {
         Random random = new Random();
 
         // TODO BETTER
-        if (mobList.enemyNumber() < 10 && timer%random.nextInt(1, (int) (15_000 - Math.min(0.05 * timer, 8_000))) == 0) {
+        if (mobList.enemyNumber() < 5 && timer%random.nextInt(1, (int) (15_000 - Math.min(0.05 * timer, 8_000))) == 0) {
             if (random.nextInt(5) != 0) addSkeleton();
             else addGhoul();
         }
@@ -217,14 +219,16 @@ public class Level {
                 case MOVE -> {
                     if (mobList.allyCollision(mob))
                         mob.idle();
-                    else if (mobList.opponentCollision(mob, firstOpponent))
-                        mob.attack(firstOpponent);
-                    else if (troop && !iterator.hasNext() && mobList.towerCollision(mob)) {
+                    else if (troop && mobList.towerCollision(mob)) {
                         mob.attack(tower);
                     }
+                    else if (mobList.opponentCollision(mob, firstOpponent))
+                        mob.attack(firstOpponent);
                 }
                 case ATTACK -> {
-                    if (!mobList.opponentCollision(mob, firstOpponent))
+                    if (troop && mobList.towerCollision(mob))
+                        mob.attack(tower);
+                    else if (!mobList.opponentCollision(mob, firstOpponent))
                         mob.move();
                     else
                         mob.attack(firstOpponent);

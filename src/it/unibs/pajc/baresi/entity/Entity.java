@@ -24,7 +24,7 @@ public abstract class Entity {
     }
 
     public boolean isAlive() {
-        return true;
+        return health > 0;
     }
 
     public boolean isRemoved() {

@@ -105,7 +105,7 @@ public class Game extends Canvas implements Runnable {
         );
 
         // TODO ADD CONST
-        level = new Level(new Point(0, gameHeight - 15), new Point(1200, gameHeight - 15));
+        level = new Level(new Point(0, gameHeight - 17), new Point(1200, gameHeight - 17));
         screen = new Screen(gameWidth, gameHeight);
         uiManager = new UIManager((int) (gameWidth * scale));
 

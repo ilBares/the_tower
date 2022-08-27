@@ -56,8 +56,6 @@ public class Mob extends Entity {
 
     private Mob prev;
 
-    private boolean alive;
-
     private boolean wait;
 
     private int soundIndex;
@@ -73,7 +71,6 @@ public class Mob extends Entity {
         this.price = price;
         this.soundIndex = soundIndex;
 
-        alive = true;
         idle();
     }
 
@@ -110,16 +107,16 @@ public class Mob extends Entity {
         }
 
         // mob attacks only when the attack animation is ended
-        if (anim == sprites.length - 1) {
-            if (opponent != null && opponent.isAlive())
+        if (anim == sprites.length - 1 && wait) {
+            if (opponent != null && opponent.isAlive()) {
                 opponent.hit(damage);
+            }
             wait = false;
         }
     }
 
     public void death() {
         if (state != State.DEATH) {
-            alive = false;
             state = State.DEATH;
             anim = 0;
             counter = 0;
@@ -189,11 +186,12 @@ public class Mob extends Entity {
 
         anim = (++counter / (GAP)) % sprites.length;
 
-        counter %= GAP * (sprites.length - 1);
+        counter %= GAP * sprites.length;
 
         //  if (state == 2 && opponent != null) opponent.hit(damage);
 
-        if (health <= 0) death();
+        if (health <= 0)
+            death();
 
         playSE();
     }

@@ -13,7 +13,7 @@ public abstract class Asset {
         pixels = new int[width * height];
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
-                pixels[x + y * width] = sheet.getPixels()[(x + column * height) + (y + row * width) * sheet.getWidth()];
+                pixels[x + y * width] = sheet.getPixels()[(x + column * width) + (y + row * height) * sheet.getWidth()];
             }
         }
     }

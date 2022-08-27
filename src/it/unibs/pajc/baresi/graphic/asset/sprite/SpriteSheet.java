@@ -43,6 +43,10 @@ public class SpriteSheet {
         return width;
     }
 
+    public int getHeight() {
+        return height;
+    }
+
     public int[] getPixels() {
         return pixels;
     }

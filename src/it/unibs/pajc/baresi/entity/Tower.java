@@ -12,6 +12,9 @@ public class Tower extends Entity {
         INTACT, COMPROMISED, DAMAGED, DESTROYED
     }
 
+    private long timer;
+    private int index;
+
     public final double maxHealth;
 
     private State state;
@@ -25,41 +28,47 @@ public class Tower extends Entity {
         maxHealth = health;
         state = State.INTACT;
 
+        index = 0;
+
         assets = TowerAsset.INTACT;
     }
 
     @Override
     public Rectangle getBounds() {
-        return null;
+        return new Rectangle((int) (x + assets[0].getWidth() / 5.), (int) y, (int) (assets[0].getWidth() / 5. * 4), assets[0].getHeight());
     }
 
     public void update() {
-        double healthOffset = maxHealth - health;
 
         switch (state) {
             case INTACT -> {
-                if (healthOffset < 0.75 * maxHealth) {
+                if (health < 0.75 * maxHealth) {
                     state = State.COMPROMISED;
                     assets = TowerAsset.COMPROMISED;
                 }
             }
             case COMPROMISED -> {
-                if (healthOffset < 0.25 * maxHealth) {
+                if (health < 0.25 * maxHealth) {
                     state = State.DAMAGED;
                     assets = TowerAsset.DAMAGED;
                 }
             }
             case DAMAGED -> {
-                if (healthOffset <= 0) {
+                if (health <= 0) {
                     state = State.DESTROYED;
                     assets = TowerAsset.DESTROYED;
+                    timer = System.currentTimeMillis();
                 }
             }
         }
     }
 
     public void render(Screen screen) {
-        screen.renderAsset((int) x, (int) y, TowerAsset.INTACT[0]);
-        screen.renderAsset((int) x - 100, (int) y, TowerAsset.COMPROMISED[0]);
+        if (state == State.DESTROYED && System.currentTimeMillis() > timer + 150 && index < assets.length - 1) {
+            index += 1;
+            timer = System.currentTimeMillis();
+        }
+
+        screen.renderAsset((int) x, (int) y, assets[index]);
     }
 }
