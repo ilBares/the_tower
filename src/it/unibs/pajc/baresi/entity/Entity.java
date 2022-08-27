@@ -8,6 +8,7 @@ public abstract class Entity {
 
     protected double x, y;
     protected boolean removed = false;
+    protected double health;
 
     public void update() { }
 
@@ -16,6 +17,14 @@ public abstract class Entity {
     public void remove() {
         // TODO remove in update method
         removed = true;
+    }
+
+    public void hit(double damage) {
+        health -= damage;
+    }
+
+    public boolean isAlive() {
+        return true;
     }
 
     public boolean isRemoved() {

@@ -9,6 +9,7 @@ public class MobList {
     private LinkedList<Mob> troops;
     private LinkedList<Mob> enemies;
     private LinkedList<Mob> dead;
+    private Tower tower;
 
     ///
     /// Constructor
@@ -38,10 +39,13 @@ public class MobList {
         return enemies.size() > 0 ? enemies.getLast() : null;
     }
 
+    public void setTower(Tower tower) {
+        this.tower = tower;
+    }
+
     public int enemyNumber() {
         return enemies.size();
     }
-
 
     public void addTroop(Mob troop) {
         troop.setPrev(getLastTroop());
@@ -108,6 +112,10 @@ public class MobList {
         // TODO to remove prev.isAlive() as an advantage for winner
         // check if prev is removed (not alive) as an advantage for the clash winner
         return prev != null && !prev.isRemoved() && mob.getBounds().intersects(prev.getBounds());
+    }
+
+    public boolean towerCollision(Mob mob) {
+        return tower != null && mob.getBounds().intersects(tower.getBounds());
     }
 
     public void update() {

@@ -4,10 +4,10 @@ import it.unibs.pajc.baresi.graphic.asset.sprite.SpriteSheet;
 
 public class TowerAsset extends Asset {
 
-    public static final Asset INTACT = new TowerAsset(150, 260, 0, 0, SpriteSheet.towerSheet);
-    public static Asset COMPROMISED = new TowerAsset(150, 260, 1, 0, SpriteSheet.towerSheet);
-    public static Asset DAMAGED = new TowerAsset(150, 260, 2, 0, SpriteSheet.towerSheet);
-    public static Asset[] DESTROYED = {
+    public static final Asset[] INTACT = { new TowerAsset(150, 260, 0, 0, SpriteSheet.towerSheet) };
+    public static final Asset[] COMPROMISED = { new TowerAsset(150, 260, 1, 0, SpriteSheet.towerSheet) };
+    public static final Asset[] DAMAGED = { new TowerAsset(150, 260, 2, 0, SpriteSheet.towerSheet) };
+    public static final Asset[] DESTROYED = {
             new TowerAsset(150, 260, 3, 0, SpriteSheet.towerSheet),
             new TowerAsset(150, 260, 3, 1, SpriteSheet.towerSheet),
             new TowerAsset(150, 260, 3, 2, SpriteSheet.towerSheet),

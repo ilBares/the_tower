@@ -49,7 +49,6 @@ public class Mob extends Entity {
     // TODO needed by the server
     private int msLoading;
 
-    private double health;
     private double damage;
     private int price;
 
@@ -101,7 +100,7 @@ public class Mob extends Entity {
         // if !collision
     }
 
-    public void attack(Mob opponent) {
+    public void attack(Entity opponent) {
         if (state != State.ATTACK) {
             state = State.ATTACK;
             anim = 0;
@@ -152,18 +151,10 @@ public class Mob extends Entity {
         return state == State.MOVE;
     }
 
-    public boolean isAlive() {
-        return alive;
-    }
-
     @Override
     public boolean isRemoved() {
         return removed;
         // return (index == sprites.length - 1) && removed;
-    }
-
-    public void hit(double damage) {
-        health -= damage;
     }
 
     @Override

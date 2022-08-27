@@ -1,25 +1,31 @@
 package it.unibs.pajc.baresi.entity;
 
 import it.unibs.pajc.baresi.graphic.Screen;
+import it.unibs.pajc.baresi.graphic.asset.Asset;
 import it.unibs.pajc.baresi.graphic.asset.TowerAsset;
-import it.unibs.pajc.baresi.graphic.asset.sprite.Sprite;
 
 import java.awt.*;
 
 public class Tower extends Entity {
 
-    private int health;
-    // 0 = undamaged
-    // 1 = damaged
-    // 2 = very damaged
-    // 3 = destroyed
-    private int state;
-    private Sprite[] sprites;
+    public enum State {
+        INTACT, COMPROMISED, DAMAGED, DESTROYED
+    }
 
-    public Tower(Point position, int health) {
+    public final double maxHealth;
+
+    private State state;
+    private Asset[] assets;
+
+    public Tower(Point position, double health) {
         this.x = position.getX();
         this.y = position.getY();
         this.health = health;
+
+        maxHealth = health;
+        state = State.INTACT;
+
+        assets = TowerAsset.INTACT;
     }
 
     @Override
@@ -28,10 +34,32 @@ public class Tower extends Entity {
     }
 
     public void update() {
+        double healthOffset = maxHealth - health;
 
+        switch (state) {
+            case INTACT -> {
+                if (healthOffset < 0.75 * maxHealth) {
+                    state = State.COMPROMISED;
+                    assets = TowerAsset.COMPROMISED;
+                }
+            }
+            case COMPROMISED -> {
+                if (healthOffset < 0.25 * maxHealth) {
+                    state = State.DAMAGED;
+                    assets = TowerAsset.DAMAGED;
+                }
+            }
+            case DAMAGED -> {
+                if (healthOffset <= 0) {
+                    state = State.DESTROYED;
+                    assets = TowerAsset.DESTROYED;
+                }
+            }
+        }
     }
 
     public void render(Screen screen) {
-        screen.renderAsset((int) x, (int) y, TowerAsset.INTACT);
+        screen.renderAsset((int) x, (int) y, TowerAsset.INTACT[0]);
+        screen.renderAsset((int) x - 100, (int) y, TowerAsset.COMPROMISED[0]);
     }
 }

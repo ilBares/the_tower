@@ -171,8 +171,8 @@ public class Level {
 
         mobList.update();
 
-        updateState(mobList.getTroopsIterator(), mobList.getFirstEnemy());
-        updateState(mobList.getEnemiesIterator(), mobList.getFirstTroop());
+        updateState(mobList.getTroopsIterator(), mobList.getFirstEnemy(), true);
+        updateState(mobList.getEnemiesIterator(), mobList.getFirstTroop(), false);
 
         /*
         for (Mob m : troops) {
@@ -195,13 +195,14 @@ public class Level {
 
         Random random = new Random();
 
-        if (mobList.enemyNumber() < 10 && timer%random.nextInt(1, (int) (10_000 - Math.min(0.1 * timer, 3_000))) == 0) {
+        // TODO BETTER
+        if (mobList.enemyNumber() < 10 && timer%random.nextInt(1, (int) (15_000 - Math.min(0.05 * timer, 8_000))) == 0) {
             if (random.nextInt(5) != 0) addSkeleton();
             else addGhoul();
         }
     }
 
-    private void updateState(Iterator<Mob> iterator, Mob firstOpponent) {
+    private void updateState(Iterator<Mob> iterator, Mob firstOpponent, boolean troop) {
 
         while (iterator.hasNext()) {
             Mob mob = iterator.next();
@@ -218,6 +219,9 @@ public class Level {
                         mob.idle();
                     else if (mobList.opponentCollision(mob, firstOpponent))
                         mob.attack(firstOpponent);
+                    else if (troop && !iterator.hasNext() && mobList.towerCollision(mob)) {
+                        mob.attack(tower);
+                    }
                 }
                 case ATTACK -> {
                     if (!mobList.opponentCollision(mob, firstOpponent))
