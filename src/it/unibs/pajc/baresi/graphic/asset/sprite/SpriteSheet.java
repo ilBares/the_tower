@@ -20,7 +20,9 @@ public class SpriteSheet {
     public static SpriteSheet miniGolemSheet = new SpriteSheet("/sheet/mini_golem_sheet.png");
 
     public static SpriteSheet towerSheet = new SpriteSheet("/sheet/tower_sheet.png");
+
     public static SpriteSheet bombSheet = new SpriteSheet("/sheet/bomb_sheet.png");
+    public static SpriteSheet fireSheet = new SpriteSheet("/sheet/fire_sheet.png");
 
     public SpriteSheet(String path) {
         this.path = path;

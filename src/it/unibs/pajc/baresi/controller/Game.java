@@ -25,8 +25,9 @@ import java.awt.image.DataBufferInt;
  */
 public class Game extends Canvas implements Runnable {
 
+    // game state
     public enum State {
-        HOME, PLAY, QUIT;
+        HOME, PLAY, QUIT
     }
 
     // swing and awt components
@@ -41,7 +42,7 @@ public class Game extends Canvas implements Runnable {
     private String  title;
 
     // updates per second
-    public int ups = 120;
+    public int fps = 120;
 
     // thread used to run the game
     private Thread thread;
@@ -49,23 +50,28 @@ public class Game extends Canvas implements Runnable {
     // key used to handle keyboard input
     private final Keyboard key;
 
+    // screen used to render the game
     private Screen screen;
+
+    // ui components manager
     private static UIManager uiManager;
 
-    // image created using pixels array
+    // image rendered by the Screen class
     private BufferedImage image;
     private int[] pixels;
 
+    // game required objects
     private Background background;
     private static Level level;
+
+    // true if the game is running
     private boolean running;
 
-    // 0: menu
-    // 1: playing game
+    // necessary to handle game state
     private State gameState;
     private Home home;
-
     private boolean pause;
+
 
     ///
     /// Constructor
@@ -139,8 +145,9 @@ public class Game extends Canvas implements Runnable {
 
         requestFocus();
 
-        playMusic();
+        playSoundtrack();
     }
+
 
     ///
     /// Getters
@@ -148,6 +155,7 @@ public class Game extends Canvas implements Runnable {
     public static Level getLevel() {
         return level;
     }
+
 
     ///
     /// Handling Game thread
@@ -233,7 +241,7 @@ public class Game extends Canvas implements Runnable {
         // 1_000_000_000.0 indicates 1 second,
         // "ns" indicates every how many seconds
         // there will be an update
-        final double ns = 1_000_000_000.0 / ups;
+        final double ns = 1_000_000_000.0 / fps;
 
         double delta = 0;
 
@@ -268,6 +276,7 @@ public class Game extends Canvas implements Runnable {
 
         stop();
     }
+
 
     ///
     /// Updating and Rendering
@@ -326,28 +335,22 @@ public class Game extends Canvas implements Runnable {
         Graphics2D g2 = (Graphics2D) bs.getDrawGraphics();
 
         screen.clear();
+
+        // game state-independent graphics
         background.render(screen);
-
-
-        // rendering pixels
         level.render(screen);
-
 
         // updating pixels that compose the image to be drawn on the JFrame
         System.arraycopy(screen.getPixels(), 0, pixels, 0, pixels.length);
 
-        // g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        // needed? g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g2.drawImage(image, 0, 0, getWidth(), getHeight(), null);
 
-        if (gameState == State.PLAY) {
+        if (gameState == State.PLAY)
             uiManager.render(g2, screen, level.getMoney() + "");
-        }
 
-
-        if (gameState == State.HOME) {
+        if (gameState == State.HOME)
             home.render(g2, screen, pause);
-        }
-
 
         g2.dispose();
 
@@ -355,7 +358,10 @@ public class Game extends Canvas implements Runnable {
         bs.show();
     }
 
-    private void playMusic() {
+    /**
+     * Plays the soundtrack contained in {@code Sound} class.
+     */
+    private void playSoundtrack() {
         Sound.play(Sound.SOUND_TRACK, true);
     }
 }

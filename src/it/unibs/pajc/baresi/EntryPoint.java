@@ -14,6 +14,8 @@ import java.io.IOException;
  * @version 1.0
  */
 public class EntryPoint {
+    public static final String FONT_PATH = "res/font/minecraft.ttf";
+    public static final String GAME_TITLE = "THE T0WER";
 
     /**
      * main method that launches our games
@@ -31,17 +33,16 @@ public class EntryPoint {
 
         try {
             // font used in the game
-            Font font = Font.createFont(Font.TRUETYPE_FONT, new File("res/font/minecraft.ttf"));
+            Font font = Font.createFont(Font.TRUETYPE_FONT, new File(FONT_PATH));
             ge.registerFont(font);
         } catch (FontFormatException | IOException e) {
             throw new RuntimeException(e);
         }
 
         double scale = Math.min(bounds.getWidth() / width, (bounds.getHeight() - 50) / height);
-        String title = "The Tower";
 
         // initializing the game
-        Game game = new Game(width, height, scale, title);
+        Game game = new Game(width, height, scale, GAME_TITLE);
         game.initialize();
 
         // starting the game

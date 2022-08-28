@@ -32,7 +32,6 @@ public class Mob extends Entity {
         IDLE, MOVE, ATTACK, DEATH
     }
 
-    public static final double VERY_SLOW = 0.15;
     public static final double SLOW = 0.20;
     public static final double MEDIUM = 0.25;
     public static final double FAST = 0.30;
@@ -60,6 +59,9 @@ public class Mob extends Entity {
 
     private int soundIndex;
 
+    ///
+    /// Constructor
+    ///
     public Mob(Point spawn, double speed, int msLoading, double health, double damage, int price, int soundIndex, Sprite model) {
         this.x = spawn.getX();
         this.y = spawn.getY();
@@ -74,6 +76,10 @@ public class Mob extends Entity {
         idle();
     }
 
+
+    ///
+    /// Mob State needed methods
+    ///
     public void idle() {
         if (state != State.IDLE) {
             state = State.IDLE;
@@ -128,6 +134,15 @@ public class Mob extends Entity {
         }
     }
 
+
+    ///
+    /// Getters and Setters
+    ///
+    @Override
+    public Rectangle getBounds() {
+        return new Rectangle((int) x, (int) y, (int) (model.getWidth() / 3. * 2), model.getHeight());
+    }
+
     public int getPrice() {
         return price;
     }
@@ -148,45 +163,19 @@ public class Mob extends Entity {
         return state == State.MOVE;
     }
 
-    @Override
-    public boolean isRemoved() {
-        return removed;
-        // return (index == sprites.length - 1) && removed;
-    }
-
+    ///
+    /// Updating and Rendering
+    ///
     @Override
     public void update() {
-        /*
-        if (!wait) {
-            if (Mouse.getButton() == MouseEvent.BUTTON1) {
-                wait = true;
-                if (state == 0 || state == 3) {
-                    attack();
-                } else {
-                    death();
-                }
-            }
-
-            if (Mouse.getButton() == MouseEvent.BUTTON3) {
-                wait = true;
-                if (state == 0) {
-                    move();
-                } else {
-                    idle();
-                }
-            }
-        } else if (Mouse.getButton() == MouseEvent.NOBUTTON){
-            wait = false;
-        }
-
-         */
 
         // todo remove
         if (isMoving()) x += dx;
 
-        anim = (++counter / (GAP)) % sprites.length;
+        if (isAlive() || anim != sprites.length - 1)
+            anim = (++counter / (GAP)) % sprites.length;
 
-        counter %= GAP * sprites.length;
+        counter %= (GAP * sprites.length);
 
         //  if (state == 2 && opponent != null) opponent.hit(damage);
 
@@ -196,23 +185,23 @@ public class Mob extends Entity {
         playSE();
     }
 
-    // play Sound Effect
-    private void playSE() {
-        // TODO playSE
-        if (state == State.ATTACK && anim == 0 && !wait) {
-            Sound.play(soundIndex, false);
-            wait = true;
-        }
-    }
-
     @Override
     public void render(Screen screen) {
         screen.renderAsset((int) x, (int) y, sprites[anim]);
     }
 
-    @Override
-    public Rectangle getBounds() {
-        return new Rectangle((int) x, (int) y, (int) (model.getWidth() / 3. * 2), model.getHeight());
+    ///
+    /// Utilities methods
+    ///
+
+    /**
+     * Plays Mob's sound effects when State is equal to {@code ATTACK}
+     */
+    private void playSE() {
+        if (state == State.ATTACK && anim == 0 && !wait) {
+            Sound.play(soundIndex, false);
+            wait = true;
+        }
     }
 }
 

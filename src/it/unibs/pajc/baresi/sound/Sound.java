@@ -14,6 +14,7 @@ public class Sound {
       public static int GOLEM_ATTACK = 4;
       public static int SKELETON_ATTACK = 5;
       public static int GHOUL_ATTACK = 6;
+      public static int TOWER_DESTROYED = 7;
 
       private static URL[] soundURL = new URL[10];
 
@@ -25,6 +26,7 @@ public class Sound {
             soundURL[GOLEM_ATTACK] = Sound.class.getResource("/sound/golem_attack.wav");
             soundURL[SKELETON_ATTACK] = Sound.class.getResource("/sound/skeleton_attack.wav");
             soundURL[GHOUL_ATTACK] = Sound.class.getResource("/sound/ghoul_attack.wav");
+            soundURL[TOWER_DESTROYED] = Sound.class.getResource("/sound/tower_destroyed.wav");
       }
 
       /*

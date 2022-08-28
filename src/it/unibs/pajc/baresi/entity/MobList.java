@@ -104,7 +104,11 @@ public class MobList {
     }
 
     public boolean opponentCollision(Mob mob, Mob opponent) {
-        return opponent != null && mob.isAlive() && opponent.isAlive() && mob.getBounds().intersects(opponent.getBounds());
+        return opponent != null
+                && mob.isAlive()
+                && (mob.getPrev() == null || !mob.getPrev().isAlive())
+                && opponent.isAlive()
+                && mob.getBounds().intersects(opponent.getBounds());
     }
 
     public boolean allyCollision(Mob mob) {

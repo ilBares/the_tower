@@ -15,7 +15,7 @@ import java.util.Random;
 public class Level {
 
     public static final int MAX_MONEY = 1000;
-    public static final int MONEY = 50;
+    public static final int MONEY_OFFSET = 5;
 
     private MobList mobList;
 
@@ -34,7 +34,7 @@ public class Level {
     ///
     public Level(Point troopSpawn, Point enemySpawn) {
         timer = System.currentTimeMillis();
-        money = 0;
+        money = 50;
 
         Level.troopSpawn = troopSpawn;
         Level.enemySpawn = enemySpawn;
@@ -85,7 +85,7 @@ public class Level {
                 Mob.FAST,
                 1500,
                 200,
-                110,
+                80,
                 150,
                 Sound.DRAGON_ATTACK,
                 new DragonSprite(64));
@@ -98,7 +98,7 @@ public class Level {
                 troopSpawn,
                 Mob.SLOW,
                 2000,
-                400,
+                450,
                 20,
                 300,
                 Sound.GOLEM_ATTACK,
@@ -127,7 +127,7 @@ public class Level {
                 -Mob.SLOW,
                 1500,
                 350,
-                40,
+                30,
                 200,
                 Sound.GHOUL_ATTACK,
                 new GhoulSprite(64));
@@ -228,23 +228,26 @@ public class Level {
                 case ATTACK -> {
                     if (troop && mobList.towerCollision(mob))
                         mob.attack(tower);
-                    else if (!mobList.opponentCollision(mob, firstOpponent))
-                        mob.move();
-                    else
+                    else {
                         mob.attack(firstOpponent);
+                        if (firstOpponent != null && !firstOpponent.isAlive()) {
+                            if (troop )money += firstOpponent.getPrice();
+                            mob.move();
+                        }
+                    }
                 }
             }
         }
     }
 
     private void updateMoney() {
-        if (System.currentTimeMillis() - timer >= 1_000) {
-            timer += 1_000;
+        if (System.currentTimeMillis() - timer >= 2_000) {
+            timer += 2_000;
 
             // to avoid pause problem
             timer = System.currentTimeMillis();
 
-            if (money + MONEY < MAX_MONEY) money += MONEY;
+            if (money + MONEY_OFFSET < MAX_MONEY) money += MONEY_OFFSET;
         }
     }
 
