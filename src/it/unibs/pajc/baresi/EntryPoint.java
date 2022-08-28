@@ -8,7 +8,7 @@ import java.io.IOException;
 
 /**
  * Entry Point of the Java project.
- * Pajc academic year 2021|22.
+ * Advanced C and Java Programming, academic year 2021|22.
  *
  * @author Baresi Marco
  * @version 1.0

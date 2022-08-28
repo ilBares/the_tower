@@ -1,6 +1,5 @@
 package it.unibs.pajc.baresi.level;
 
-import it.unibs.pajc.baresi.entity.Bomb;
 import it.unibs.pajc.baresi.entity.Mob;
 import it.unibs.pajc.baresi.entity.MobList;
 import it.unibs.pajc.baresi.entity.Tower;
@@ -12,6 +11,9 @@ import java.awt.*;
 import java.util.Iterator;
 import java.util.Random;
 
+/**
+ * Level class that contains the code needed for a specific level.
+ */
 public class Level {
 
     public static final int MAX_MONEY = 1000;
