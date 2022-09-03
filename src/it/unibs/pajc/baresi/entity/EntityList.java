@@ -5,7 +5,7 @@ import it.unibs.pajc.baresi.graphic.Screen;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-public class MobList {
+public class EntityList {
     private LinkedList<Mob> troops;
     private LinkedList<Mob> enemies;
     private LinkedList<Mob> dead;
@@ -14,7 +14,7 @@ public class MobList {
     ///
     /// Constructor
     ///
-    public MobList() {
+    public EntityList() {
         troops = new LinkedList<>();
         enemies = new LinkedList<>();
         dead = new LinkedList<>();
@@ -37,6 +37,10 @@ public class MobList {
 
     public Mob getLastEnemy() {
         return enemies.size() > 0 ? enemies.getLast() : null;
+    }
+
+    public Tower getTower() {
+        return tower;
     }
 
     public void setTower(Tower tower) {
@@ -113,9 +117,14 @@ public class MobList {
 
     public boolean allyCollision(Mob mob) {
         Mob prev = mob.getPrev();
-        // TODO to remove prev.isAlive() as an advantage for winner
         // check if prev is removed (not alive) as an advantage for the clash winner
         return prev != null && !prev.isRemoved() && mob.getBounds().intersects(prev.getBounds());
+    }
+
+    public void killEnemies() {
+        for (Mob e : enemies) {
+            e.hit(e.health);
+        }
     }
 
     public boolean towerCollision(Mob mob) {
@@ -125,6 +134,7 @@ public class MobList {
     public void update() {
         troops.forEach(Mob::update);
         enemies.forEach(Mob::update);
+        tower.update();
 
         while (troops.size() > 0 && !troops.getFirst().isAlive()) {
             dead.add(troops.removeFirst());
@@ -146,6 +156,7 @@ public class MobList {
     }
 
     public void render(Screen screen) {
+        tower.render(screen);
         enemies.forEach((enemy) -> enemy.render(screen));
         troops.forEach((troop) -> troop.render(screen));
         dead.forEach((dead) -> dead.render(screen));

@@ -42,7 +42,6 @@ public class Layer {
     }
 
     public void update() {
-        // todo here?? or render?
         if (paths.length > 1) {
             index = (++anim / (100 / paths.length)) % paths.length;
             anim %= 100;

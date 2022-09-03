@@ -29,19 +29,7 @@ public class Sound {
             soundURL[TOWER_DESTROYED] = Sound.class.getResource("/sound/tower_destroyed.wav");
       }
 
-      /*
-      public synchronized static void setFile(int index) {
-            try {
-                  AudioInputStream ais = AudioSystem.getAudioInputStream(soundURL[index]);
-                  clip = AudioSystem.getClip();
-                  clip.open(ais);
-            } catch (Exception e) {
-                  throw new RuntimeException(e);
-            }
-      }
-       */
-
-      public static void play(int index, boolean loop) {
+      public static Clip play(int index, boolean loop) {
             AudioInputStream ais;
             Clip clip;
             try {
@@ -54,9 +42,7 @@ public class Sound {
             clip.start();
             if (loop)
                   clip.loop(Clip.LOOP_CONTINUOUSLY);
-      }
 
-      public static void stop(int index) {
-
+            return clip;
       }
 }

@@ -14,17 +14,23 @@ public class Keyboard implements KeyListener {
     private boolean left, right, up, down;
     private boolean enter;
     private boolean escape;
+    private boolean bares;
 
     /**
      * Updates {@code left} and {@code right} variables based on KeyEvents.
      */
     public void update() {
+        // TODO to remove
+        bares = keys[KeyEvent.VK_B] && keys[KeyEvent.VK_A] && keys[KeyEvent.VK_R]
+                && keys[KeyEvent.VK_E] && keys[KeyEvent.VK_S];
+
         right = keys[KeyEvent.VK_RIGHT] || keys[KeyEvent.VK_D];
-        left = keys[KeyEvent.VK_LEFT] || keys[KeyEvent.VK_A];
+        left = keys[KeyEvent.VK_LEFT] || keys[KeyEvent.VK_A] && !bares;
         up = keys[KeyEvent.VK_UP] || keys[KeyEvent.VK_W];
         down = keys[KeyEvent.VK_DOWN] || keys[KeyEvent.VK_S];
         enter = keys[KeyEvent.VK_ENTER] || keys[KeyEvent.VK_SPACE];
         escape = keys[KeyEvent.VK_ESCAPE];
+
     }
 
     /**
@@ -67,6 +73,14 @@ public class Keyboard implements KeyListener {
      */
     public boolean isEscape() {
         return escape;
+    }
+
+    /**
+     * TODO TO REMOVE
+     * @return @?!
+     */
+    public boolean isBares() {
+        return bares;
     }
 
     public boolean anyKey() {

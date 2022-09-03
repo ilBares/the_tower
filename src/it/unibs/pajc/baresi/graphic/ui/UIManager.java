@@ -41,7 +41,7 @@ public class UIManager {
             }
         });
 
-        lblMoney = new UIText("", screenWidth - 100, 75, 40);
+        lblMoney = new UIText("", screenWidth - 150, 75, 40);
     }
 
     public void update() {

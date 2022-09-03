@@ -169,7 +169,6 @@ public class Mob extends Entity {
     @Override
     public void update() {
 
-        // todo remove
         if (isMoving()) x += dx;
 
         if (isAlive() || anim != sprites.length - 1)

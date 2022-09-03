@@ -27,7 +27,7 @@ public class Game extends Canvas implements Runnable {
 
     // game state
     public enum State {
-        HOME, PLAY, QUIT
+        HOME, PLAY, MULTIPLAYER, QUIT, WIN, GAME_OVER
     }
 
     // swing and awt components
@@ -71,7 +71,6 @@ public class Game extends Canvas implements Runnable {
     private State gameState;
     private Home home;
     private boolean pause;
-
 
     ///
     /// Constructor
@@ -152,6 +151,10 @@ public class Game extends Canvas implements Runnable {
     ///
     /// Getters
     ///
+
+    /**
+     * @return Game Level object
+     */
     public static Level getLevel() {
         return level;
     }
@@ -285,8 +288,10 @@ public class Game extends Canvas implements Runnable {
      * Updates the game, equivalent to the concept of "step next".
      */
     private void update() {
+        int levelState;
+
         key.update();
-        background.update(gameState == State.HOME);
+        background.update(gameState == State.HOME || gameState == State.WIN || gameState == State.GAME_OVER);
 
         if (key.isEscape()) {
             gameState = State.HOME;
@@ -294,8 +299,15 @@ public class Game extends Canvas implements Runnable {
         }
 
         switch (gameState) {
+            case WIN -> {
+                level.win();
+                gameState = State.HOME;
+            }
+            case GAME_OVER -> {
+                System.out.println("GAME OVER");
+            }
             case HOME -> {
-                gameState = home.update(key);
+                gameState = home.update(key, pause);
 
                 if (gameState == State.QUIT)
                     stop();
@@ -305,8 +317,21 @@ public class Game extends Canvas implements Runnable {
             }
             case PLAY -> {
                 screen.setMapOffset(background.getMapOffset());
-                level.update();
+                levelState = level.update();
+
+                if (key.isBares())
+                    level.bares();
+
+                // TODO TO IMPROVE
+                switch (levelState) {
+                    case 1 -> gameState = State.WIN;
+                    case -1 -> gameState = State.GAME_OVER;
+                }
+
                 uiManager.update();
+            }
+            case MULTIPLAYER -> {
+                screen.setMapOffset(background.getMapOffset());
             }
         }
     }
@@ -350,7 +375,7 @@ public class Game extends Canvas implements Runnable {
             uiManager.render(g2, screen, level.getMoney() + "");
 
         if (gameState == State.HOME)
-            home.render(g2, screen, pause);
+            home.render(g2, screen);
 
         g2.dispose();
 

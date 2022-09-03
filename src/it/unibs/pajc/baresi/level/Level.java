@@ -1,25 +1,29 @@
 package it.unibs.pajc.baresi.level;
 
+import it.unibs.pajc.baresi.entity.Bomb;
 import it.unibs.pajc.baresi.entity.Mob;
-import it.unibs.pajc.baresi.entity.MobList;
+import it.unibs.pajc.baresi.entity.EntityList;
 import it.unibs.pajc.baresi.entity.Tower;
 import it.unibs.pajc.baresi.graphic.Screen;
 import it.unibs.pajc.baresi.graphic.asset.sprite.*;
+import it.unibs.pajc.baresi.input.Keyboard;
 import it.unibs.pajc.baresi.sound.Sound;
 
 import java.awt.*;
+import java.awt.event.KeyEvent;
+import java.io.Serializable;
 import java.util.Iterator;
 import java.util.Random;
 
 /**
  * Level class that contains the code needed for a specific level.
  */
-public class Level {
+public class Level implements Serializable {
 
     public static final int MAX_MONEY = 1000;
     public static final int MONEY_OFFSET = 5;
 
-    private MobList mobList;
+    private EntityList entityList;
 
     private long timer;
     private static int money;
@@ -27,9 +31,7 @@ public class Level {
     private static Point troopSpawn;
     private static Point enemySpawn;
 
-    private Tower tower;
-    // TODO private Bomb bomb;
-
+    private Bomb bomb;
 
     ///
     /// Constructor
@@ -41,12 +43,12 @@ public class Level {
         Level.troopSpawn = troopSpawn;
         Level.enemySpawn = enemySpawn;
 
-        mobList = new MobList();
+        entityList = new EntityList();
 
-        tower = new Tower(new Point(enemySpawn.x - 100, enemySpawn.y), 1000);
+        Tower tower = new Tower(new Point(enemySpawn.x - 100, enemySpawn.y), 1000);
 
-        mobList.setTower(tower);
-        // TODO bomb = new Bomb(new Point(enemySpawn.x - 80, enemySpawn.y + 30));
+        entityList.setTower(tower);
+        bomb = new Bomb(new Point(enemySpawn.x - 80, enemySpawn.y + 30));
     }
 
     ///
@@ -142,12 +144,12 @@ public class Level {
         if (money >= mob.getPrice()) {
             money -= mob.getPrice();
 
-            mobList.addTroop(mob);
+            entityList.addTroop(mob);
         }
     }
 
     private synchronized void addEnemy(Mob enemy) {
-        mobList.addEnemy(enemy);
+        entityList.addEnemy(enemy);
     }
 
     ///
@@ -161,22 +163,27 @@ public class Level {
     /// Updating and Rendering
     ///
     // TODO CHANGE
-    public void update() {
 
+    /**
+     *
+     * @return 1 -> Win
+     *         0 -> Playing
+     *         -1 -> Game Over
+     */
+    public int update() {
         updateMoney();
 
-        // TODO bomb.update();
-        tower.update();
+        bomb.update();
 
 
         // TODO to remove
         // troops.forEach(Mob::update);
         // enemies.forEach(Mob::update);
 
-        mobList.update();
+        entityList.update();
 
-        updateState(mobList.getTroopsIterator(), mobList.getFirstEnemy(), true);
-        updateState(mobList.getEnemiesIterator(), mobList.getFirstTroop(), false);
+        updateState(entityList.getTroopsIterator(), entityList.getFirstEnemy(), true);
+        updateState(entityList.getEnemiesIterator(), entityList.getFirstTroop(), false);
 
         /*
         for (Mob m : troops) {
@@ -200,10 +207,14 @@ public class Level {
         Random random = new Random();
 
         // TODO BETTER
-        if (mobList.enemyNumber() < 5 && timer%random.nextInt(1, (int) (15_000 - Math.min(0.05 * timer, 8_000))) == 0) {
+        if (entityList.enemyNumber() < 5 && timer%random.nextInt(1, (int) (15_000 - Math.min(0.05 * timer, 8_000))) == 0) {
             if (random.nextInt(5) != 0) addSkeleton();
             else addGhoul();
         }
+
+        if (!entityList.getTower().isAlive())
+            return 1;
+        return 0;
     }
 
     private void updateState(Iterator<Mob> iterator, Mob firstOpponent, boolean troop) {
@@ -213,27 +224,33 @@ public class Level {
 
             switch (mob.getState()) {
                 case IDLE -> {
-                    if (!mobList.allyCollision(mob))
+                    if (!entityList.allyCollision(mob) && (!troop || !entityList.towerCollision(mob)))
                         mob.move();
-                    else if (!iterator.hasNext() && mobList.opponentCollision(mob, firstOpponent))
+                    else if (!iterator.hasNext() && entityList.opponentCollision(mob, firstOpponent))
                         mob.attack(firstOpponent);
                 }
                 case MOVE -> {
-                    if (mobList.allyCollision(mob))
+                    if (entityList.allyCollision(mob))
                         mob.idle();
-                    else if (troop && mobList.towerCollision(mob)) {
-                        mob.attack(tower);
+                    else if (troop && entityList.towerCollision(mob) && entityList.getTower().isAlive()) {
+                        mob.attack(entityList.getTower());
                     }
-                    else if (mobList.opponentCollision(mob, firstOpponent))
+                    else if (entityList.opponentCollision(mob, firstOpponent))
                         mob.attack(firstOpponent);
                 }
                 case ATTACK -> {
-                    if (troop && mobList.towerCollision(mob))
-                        mob.attack(tower);
+                    if (troop && entityList.towerCollision(mob)) {
+                        mob.attack(entityList.getTower());
+                        if (!entityList.getTower().isAlive())
+                            mob.idle();
+                    }
                     else {
                         mob.attack(firstOpponent);
-                        if (firstOpponent != null && !firstOpponent.isAlive()) {
-                            if (troop )money += firstOpponent.getPrice();
+                        // case of Bares hack
+                        if (firstOpponent == null) {
+                            mob.move();
+                        } else if (!firstOpponent.isAlive()) {
+                            if (troop)money += firstOpponent.getPrice();
                             mob.move();
                         }
                     }
@@ -253,11 +270,18 @@ public class Level {
         }
     }
 
-    public void render(Screen screen) {
-        tower.render(screen);
-        // TODO bomb.render(screen);
-
-        mobList.render(screen);
+    public void bares() {
+        entityList.killEnemies();
     }
 
+    public void render(Screen screen) {
+        
+        // TODO bomb.render(screen);
+
+        entityList.render(screen);
+    }
+
+    public void win() {
+        entityList.getTower().update();
+    }
 }
