@@ -3,8 +3,9 @@ package it.unibs.pajc.baresi.graphic.asset.sprite;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.io.Serializable;
 
-public class SpriteSheet {
+public class SpriteSheet implements Serializable {
     private int width, height;
     private String path;
     private int[] pixels;
@@ -20,6 +21,7 @@ public class SpriteSheet {
     public static SpriteSheet miniGolemSheet = new SpriteSheet("/sheet/mini_golem_sheet.png");
 
     public static SpriteSheet towerSheet = new SpriteSheet("/sheet/tower_sheet.png");
+    public static SpriteSheet heartSheet = new SpriteSheet("/sheet/heart_sheet.png");
 
     public static SpriteSheet bombSheet = new SpriteSheet("/sheet/bomb_sheet.png");
     public static SpriteSheet fireSheet = new SpriteSheet("/sheet/fire_sheet.png");

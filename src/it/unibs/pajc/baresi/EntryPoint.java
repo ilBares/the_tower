@@ -1,6 +1,8 @@
 package it.unibs.pajc.baresi;
 
 import it.unibs.pajc.baresi.controller.Game;
+import it.unibs.pajc.baresi.net.client.Client;
+import it.unibs.pajc.baresi.net.server.Protocol;
 
 import java.awt.*;
 import java.io.File;

@@ -1,10 +1,11 @@
 package it.unibs.pajc.baresi.entity;
 
+import it.unibs.pajc.baresi.controller.Game;
 import it.unibs.pajc.baresi.graphic.Screen;
 import it.unibs.pajc.baresi.graphic.asset.Asset;
 import it.unibs.pajc.baresi.graphic.asset.FireAsset;
 import it.unibs.pajc.baresi.graphic.asset.TowerAsset;
-import it.unibs.pajc.baresi.sound.Sound;
+import it.unibs.pajc.baresi.sound.GameSound;
 
 import java.awt.*;
 
@@ -24,9 +25,10 @@ public class Tower extends Entity {
 
     private boolean soundPlayed;
 
-    public Tower(Point position, double health) {
-        this.x = position.getX();
-        this.y = position.getY();
+    public Tower(double health) {
+        this.x = Game.enemySpawn.getX() - 100;
+        this.y = Game.enemySpawn.getY() + 1;
+
         this.health = health;
 
         soundPlayed = false;
@@ -66,7 +68,14 @@ public class Tower extends Entity {
                     timer = System.currentTimeMillis();
                 }
             }
+            case DESTROYED -> {
+                if (System.currentTimeMillis() > timer + 150) {
+                    anim += 1;
+                    timer = System.currentTimeMillis();
+                }
+            }
         }
+
     }
 
     public void render(Screen screen) {
@@ -74,17 +83,11 @@ public class Tower extends Entity {
 
         if (state == State.DESTROYED) {
             if (!soundPlayed && anim == 0) {
-                Sound.play(Sound.TOWER_DESTROYED, false);
+                GameSound.play(GameSound.TOWER_DESTROYED, false);
                 soundPlayed = true;
             }
 
             screen.renderAsset((int) x + 25, (int) y, FireAsset.FIRE[anim % FireAsset.FIRE.length]);
-        }
-
-        if (state == State.DESTROYED && System.currentTimeMillis() > timer + 150) {
-            anim += 1;
-            timer = System.currentTimeMillis();
-
         }
     }
 }

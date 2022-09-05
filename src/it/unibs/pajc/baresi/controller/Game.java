@@ -7,7 +7,7 @@ import it.unibs.pajc.baresi.graphic.Screen;
 import it.unibs.pajc.baresi.graphic.background.Background;
 import it.unibs.pajc.baresi.input.Mouse;
 import it.unibs.pajc.baresi.level.Level;
-import it.unibs.pajc.baresi.sound.Sound;
+import it.unibs.pajc.baresi.sound.GameSound;
 
 import javax.swing.*;
 import java.awt.*;
@@ -27,7 +27,7 @@ public class Game extends Canvas implements Runnable {
 
     // game state
     public enum State {
-        HOME, PLAY, MULTIPLAYER, QUIT, WIN, GAME_OVER
+        HOME, SINGLE_PLAYER, MULTI_PLAYER, QUIT, WIN, GAME_OVER
     }
 
     // swing and awt components
@@ -63,6 +63,10 @@ public class Game extends Canvas implements Runnable {
     // game required objects
     private Background background;
     private static Level level;
+    private static Level netLevel;
+
+    public static Point troopSpawn = new Point(0, 1280 - 17);;
+    public static Point enemySpawn = new Point(1200, 720 - 17);
 
     // true if the game is running
     private boolean running;
@@ -90,17 +94,29 @@ public class Game extends Canvas implements Runnable {
 
         this.title = title;
         this.running = false;
+
         frame = new JFrame();
 
         ///
         /// setting input handlers
         ///
         key = new Keyboard();
+
         addKeyListener(key);
         Mouse mouse = new Mouse();
         addMouseListener(mouse);
         addMouseMotionListener(mouse);
 
+        home = new Home((int) (gameWidth * scale), (int) (gameHeight * scale));
+        gameState = State.HOME;
+
+        troopSpawn = new Point(0, gameHeight - 17);
+        enemySpawn = new Point(1200, gameHeight - 17);
+
+        setGame();
+    }
+
+    private void setGame() {
         ///
         /// setting graphic handlers
         ///
@@ -110,7 +126,8 @@ public class Game extends Canvas implements Runnable {
         );
 
         // TODO ADD CONST
-        level = new Level(new Point(0, gameHeight - 17), new Point(1200, gameHeight - 17));
+        level = new Level(false);
+
         screen = new Screen(gameWidth, gameHeight);
         uiManager = new UIManager((int) (gameWidth * scale));
 
@@ -118,8 +135,6 @@ public class Game extends Canvas implements Runnable {
         image = new BufferedImage(gameWidth, gameHeight, BufferedImage.TYPE_INT_RGB);
         pixels = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
 
-        home = new Home((int) (gameWidth * scale), (int) (gameHeight * scale));
-        gameState = State.HOME;
         pause = false;
     }
 
@@ -259,12 +274,15 @@ public class Game extends Canvas implements Runnable {
                 ///
                 /// updating logical part
                 ///
-                update();
+                if (gameState == State.SINGLE_PLAYER || gameState == State.HOME) {
+                    update();
 
-                ///
-                /// updating graphical part
-                ///
-                render();
+                    ///
+                    /// updating graphical part
+                    ///
+                    render();
+                }
+
                 frames++;
 
                 if (System.currentTimeMillis() - timer > 1000) {
@@ -302,6 +320,7 @@ public class Game extends Canvas implements Runnable {
             case WIN -> {
                 level.win();
                 gameState = State.HOME;
+                setGame();
             }
             case GAME_OVER -> {
                 System.out.println("GAME OVER");
@@ -312,10 +331,10 @@ public class Game extends Canvas implements Runnable {
                 if (gameState == State.QUIT)
                     stop();
 
-                if (gameState == State.PLAY)
+                if (gameState == State.SINGLE_PLAYER)
                     pause = false;
             }
-            case PLAY -> {
+            case SINGLE_PLAYER -> {
                 screen.setMapOffset(background.getMapOffset());
                 levelState = level.update();
 
@@ -330,7 +349,7 @@ public class Game extends Canvas implements Runnable {
 
                 uiManager.update();
             }
-            case MULTIPLAYER -> {
+            case MULTI_PLAYER -> {
                 screen.setMapOffset(background.getMapOffset());
             }
         }
@@ -371,7 +390,7 @@ public class Game extends Canvas implements Runnable {
         // needed? g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g2.drawImage(image, 0, 0, getWidth(), getHeight(), null);
 
-        if (gameState == State.PLAY)
+        if (gameState == State.SINGLE_PLAYER)
             uiManager.render(g2, screen, level.getMoney() + "");
 
         if (gameState == State.HOME)
@@ -387,7 +406,11 @@ public class Game extends Canvas implements Runnable {
      * Plays the soundtrack contained in {@code Sound} class.
      */
     private void playSoundtrack() {
-        Sound.play(Sound.SOUND_TRACK, true);
+        GameSound.play(GameSound.SOUND_TRACK, true);
+    }
+
+    public synchronized static void updateLevel(Level level) {
+        Game.netLevel = level;
     }
 }
 

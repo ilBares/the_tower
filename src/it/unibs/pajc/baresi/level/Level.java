@@ -1,60 +1,118 @@
 package it.unibs.pajc.baresi.level;
 
-import it.unibs.pajc.baresi.entity.Bomb;
-import it.unibs.pajc.baresi.entity.Mob;
-import it.unibs.pajc.baresi.entity.EntityList;
-import it.unibs.pajc.baresi.entity.Tower;
+import it.unibs.pajc.baresi.entity.*;
 import it.unibs.pajc.baresi.graphic.Screen;
 import it.unibs.pajc.baresi.graphic.asset.sprite.*;
-import it.unibs.pajc.baresi.input.Keyboard;
-import it.unibs.pajc.baresi.sound.Sound;
+import it.unibs.pajc.baresi.sound.GameSound;
 
-import java.awt.*;
-import java.awt.event.KeyEvent;
-import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Random;
 
 /**
  * Level class that contains the code needed for a specific level.
  */
-public class Level implements Serializable {
+public class Level {
+
+    public enum Troop {
+        MINI_GOLEM, ADVENTURER, DRAGON, GOLEM
+    }
+
+    private enum Enemy {
+        SKELETON, GHOUL
+    }
 
     public static final int MAX_MONEY = 1000;
     public static final int MONEY_OFFSET = 5;
 
+    // entity list containing troops, enemies and tower
     private EntityList entityList;
 
+    // used to randomly add enemies
     private long timer;
-    private static int money;
 
-    private static Point troopSpawn;
-    private static Point enemySpawn;
+    // needed to play in single player or multiplayer
+    private static ArrayList<Player> players;
 
-    private Bomb bomb;
 
     ///
     /// Constructor
     ///
-    public Level(Point troopSpawn, Point enemySpawn) {
+    public Level(boolean multiplayer) {
         timer = System.currentTimeMillis();
-        money = 50;
-
-        Level.troopSpawn = troopSpawn;
-        Level.enemySpawn = enemySpawn;
 
         entityList = new EntityList();
 
-        Tower tower = new Tower(new Point(enemySpawn.x - 100, enemySpawn.y), 1000);
+        Tower tower = new Tower( 1000);
 
         entityList.setTower(tower);
-        bomb = new Bomb(new Point(enemySpawn.x - 80, enemySpawn.y + 30));
+
+        players = new ArrayList<>();
+
+        players.add(new Player("Player 1", 50, MAX_MONEY));
+
+        if (multiplayer)
+            players.add(new Player("Player 2", 50, MAX_MONEY));
     }
 
     ///
     /// Methods exposed to add mobs
     ///
-    public void addMiniGolem() {
+
+    public void addTroop(Troop troop) {
+        addTroop(troop, 0);
+    }
+
+    public void addTroop(Troop troop, int playerNo) {
+        Mob mob = null;
+
+        switch (troop) {
+            case MINI_GOLEM -> mob = new Mob(
+                    true,
+                    Mob.VERY_FAST,
+                    50,
+                    40,
+                    25,
+                    GameSound.MINI_GOLEM_ATTACK,
+                    new MiniGolemSprite(64)
+            );
+            case ADVENTURER -> mob = new Mob(
+                    true,
+                    Mob.MEDIUM,
+                    125,
+                    50,
+                    75,
+                    GameSound.ADVENTURER_ATTACK,
+                    new AdventurerSprite(64)
+            );
+            case DRAGON -> mob = new Mob(
+                    true,
+                    Mob.FAST,
+                    200,
+                    80,
+                    150,
+                    GameSound.DRAGON_ATTACK,
+                    new DragonSprite(64)
+            );
+            case GOLEM -> mob = new Mob(
+                   true,
+                   Mob.SLOW,
+                   450,
+                   20,
+                   300,
+                   GameSound.GOLEM_ATTACK,
+                   new GolemSprite(64)
+            );
+        }
+
+        synchronized (this) {
+            if (players.get(playerNo).subMoney(mob.getPrice()))
+                entityList.addTroop(mob);
+        }
+    }
+
+    /*
+    public void addMiniGolem(int playerNo) {
         Mob miniGolem = new Mob(
                 troopSpawn,
                 Mob.VERY_FAST,
@@ -66,10 +124,10 @@ public class Level implements Serializable {
                 new MiniGolemSprite(64)
         );
 
-        addTroop(miniGolem);
+        addTroop(miniGolem, playerNo);
     }
 
-    public void addAdventurer() {
+    public void addAdventurer(int playerNo) {
         Mob adventurer = new Mob(
                 troopSpawn,
                 Mob.MEDIUM,
@@ -78,12 +136,13 @@ public class Level implements Serializable {
                 50,
                 75,
                 Sound.ADVENTURER_ATTACK,
-                new AdventurerSprite(64));
+                new AdventurerSprite(64)
+        );
 
-        addTroop(adventurer);
+        addTroop(adventurer, playerNo);
     }
 
-    public void addDragon() {
+    public void addDragon(int playerNo) {
         Mob dragon = new Mob(
                 troopSpawn,
                 Mob.FAST,
@@ -94,10 +153,10 @@ public class Level implements Serializable {
                 Sound.DRAGON_ATTACK,
                 new DragonSprite(64));
 
-        addTroop(dragon);
+        addTroop(dragon, playerNo);
     }
 
-    public void addGolem() {
+    public void addGolem(int playerNo) {
         Mob golem = new Mob(
                 troopSpawn,
                 Mob.SLOW,
@@ -108,7 +167,7 @@ public class Level implements Serializable {
                 Sound.GOLEM_ATTACK,
                 new GolemSprite(64));
 
-        addTroop(golem);
+        addTroop(golem, playerNo);
     }
 
     private void addSkeleton() {
@@ -139,24 +198,53 @@ public class Level implements Serializable {
         addEnemy(ghoul);
     }
 
-    private synchronized void addTroop(Mob mob) {
-        // TODO require to the server
-        if (money >= mob.getPrice()) {
-            money -= mob.getPrice();
+    private synchronized void addTroop(Mob mob, int playerNo) {
 
+        if (players.get(playerNo).subMoney(mob.getPrice()))
             entityList.addTroop(mob);
-        }
     }
 
     private synchronized void addEnemy(Mob enemy) {
         entityList.addEnemy(enemy);
+    }
+    */
+
+    private void addEnemy(Enemy enemy) {
+        Mob mob = null;
+
+        switch (enemy) {
+            case SKELETON -> mob = new Mob(
+                    false,
+                    Mob.MEDIUM,
+                    125,
+                    30,
+                    50,
+                    GameSound.SKELETON_ATTACK,
+                    new SkeletonSprite(64));
+            case GHOUL -> mob = new Mob(
+                    false,
+                    Mob.SLOW,
+                    350,
+                    30,
+                    200,
+                    GameSound.GHOUL_ATTACK,
+                    new GhoulSprite(64));
+        }
+
+        synchronized (this) {
+            entityList.addEnemy(mob);
+        }
     }
 
     ///
     /// Getters
     ///
     public int getMoney() {
-        return money;
+        return players.get(0).getMoney();
+    }
+
+    public int getMoney(int playerNo) {
+        return players.get(playerNo).getMoney();
     }
 
     ///
@@ -172,8 +260,6 @@ public class Level implements Serializable {
      */
     public int update() {
         updateMoney();
-
-        bomb.update();
 
 
         // TODO to remove
@@ -208,11 +294,15 @@ public class Level implements Serializable {
 
         // TODO BETTER
         if (entityList.enemyNumber() < 5 && timer%random.nextInt(1, (int) (15_000 - Math.min(0.05 * timer, 8_000))) == 0) {
-            if (random.nextInt(5) != 0) addSkeleton();
-            else addGhoul();
+            if (random.nextInt(5) != 0) addEnemy(Enemy.SKELETON);
+            else addEnemy(Enemy.GHOUL);
         }
 
         if (!entityList.getTower().isAlive())
+            return 1;
+
+        // TODO
+        if (!entityList.getHeart().isAlive())
             return 1;
         return 0;
     }
@@ -237,6 +327,9 @@ public class Level implements Serializable {
                     }
                     else if (entityList.opponentCollision(mob, firstOpponent))
                         mob.attack(firstOpponent);
+                    else if (!troop && entityList.heartCollision(mob)) {
+                        entityList.getHeart().destroy();
+                    }
                 }
                 case ATTACK -> {
                     if (troop && entityList.towerCollision(mob)) {
@@ -250,7 +343,7 @@ public class Level implements Serializable {
                         if (firstOpponent == null) {
                             mob.move();
                         } else if (!firstOpponent.isAlive()) {
-                            if (troop)money += firstOpponent.getPrice();
+                            if (troop) players.forEach(p -> p.addMoney(firstOpponent.getPrice()));
                             mob.move();
                         }
                     }
@@ -266,7 +359,7 @@ public class Level implements Serializable {
             // to avoid pause problem
             timer = System.currentTimeMillis();
 
-            if (money + MONEY_OFFSET < MAX_MONEY) money += MONEY_OFFSET;
+            players.forEach(p -> p.addMoney(MONEY_OFFSET));
         }
     }
 
@@ -282,6 +375,6 @@ public class Level implements Serializable {
     }
 
     public void win() {
-        entityList.getTower().update();
+        entityList.win();
     }
 }

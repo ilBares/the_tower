@@ -9,11 +9,9 @@ import java.util.HashMap;
 import java.util.function.Consumer;
 
 public class Protocol implements Runnable {
-    private static HashMap<String, Consumer<ClientEvent>> commandMap;
+    private static HashMap<String, Consumer<ClientEvent>> commandMap = new HashMap<>();
 
     static {
-        commandMap = new HashMap<>();
-
         commandMap.put("@addTroop", e -> e.getPlayer().addTroop(e.getParameters()));
         commandMap.put("@bares", e -> e.getPlayer().bares());
     }
@@ -25,12 +23,14 @@ public class Protocol implements Runnable {
 
     // game parameters
     private ArrayList<Protocol> clientList = new ArrayList<>();
-    private static Level level;
+    protected static Level level;
     // client money
-    private int money;
+    private int playerNo;
 
-    public Protocol(Socket client) {
+    public Protocol(Socket client, int playerNo) {
         this.client = client;
+        this.playerNo = playerNo;
+        clientList.add(this);
     }
 
     @Override
@@ -55,8 +55,6 @@ public class Protocol implements Runnable {
                                     commandMap.get("@default");
                     commandExe.accept(e);
                 }
-
-                scheduleUpdate();
             }
 
         } catch (Exception e) {
@@ -73,10 +71,12 @@ public class Protocol implements Runnable {
 
     protected void addTroop(ArrayList<String> parameters) {
         switch (parameters.get(0)) {
-            case "miniGolem" -> level.addMiniGolem();
-            case "adventurer" -> level.addAdventurer();
-            case "dragon" -> level.addDragon();
-            case "golem" -> level.addGolem();
+            case "miniGolem" -> {
+                level.addTroop(Level.Troop.MINI_GOLEM, playerNo);
+            }
+            case "adventurer" -> level.addTroop(Level.Troop.ADVENTURER, playerNo);
+            case "dragon" -> level.addTroop(Level.Troop.DRAGON, playerNo);
+            case "golem" -> level.addTroop(Level.Troop.GOLEM, playerNo);
         }
 
         update();
@@ -86,7 +86,8 @@ public class Protocol implements Runnable {
         level.bares();
     }
 
-    private void scheduleUpdate() {
+    public void scheduleUpdate() {
+
         long lastTime = System.nanoTime();
         long timer = System.currentTimeMillis();
 
@@ -100,24 +101,26 @@ public class Protocol implements Runnable {
 
         double delta = 0;
 
+        while (true) {
+            long now = System.nanoTime();
+            delta += (now - lastTime) / ns;
 
-        long now = System.nanoTime();
-        delta += (now - lastTime) / ns;
+            while (delta >= 1) {
+                delta--;
 
-        while (delta >= 1) {
-            delta--;
+                ///
+                /// updating logical part
+                ///
+                update();
 
-            ///
-            /// updating logical part
-            ///
-            update();
-
-            if (System.currentTimeMillis() - timer > 1000)
-                timer += 1000;
+                if (System.currentTimeMillis() - timer > 1000)
+                    timer += 1000;
+            }
         }
     }
 
     public void update() {
+        System.out.println("Update");
         // TODO print Level
         // TODO update game
         clientList.forEach(c -> {

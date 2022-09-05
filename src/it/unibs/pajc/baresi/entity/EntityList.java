@@ -10,6 +10,7 @@ public class EntityList {
     private LinkedList<Mob> enemies;
     private LinkedList<Mob> dead;
     private Tower tower;
+    private Heart heart;
 
     ///
     /// Constructor
@@ -18,6 +19,7 @@ public class EntityList {
         troops = new LinkedList<>();
         enemies = new LinkedList<>();
         dead = new LinkedList<>();
+        heart = new Heart();
     }
 
     ///
@@ -41,6 +43,10 @@ public class EntityList {
 
     public Tower getTower() {
         return tower;
+    }
+
+    public Heart getHeart() {
+        return heart;
     }
 
     public void setTower(Tower tower) {
@@ -127,14 +133,19 @@ public class EntityList {
         }
     }
 
-    public boolean towerCollision(Mob mob) {
-        return tower != null && mob.getBounds().intersects(tower.getBounds());
+    public boolean towerCollision(Mob troop) {
+        return tower != null && troop.getBounds().intersects(tower.getBounds());
+    }
+
+    public boolean heartCollision(Mob enemy) {
+        return enemy.getBounds().intersects(heart.getBounds());
     }
 
     public void update() {
         troops.forEach(Mob::update);
         enemies.forEach(Mob::update);
         tower.update();
+        heart.update();
 
         while (troops.size() > 0 && !troops.getFirst().isAlive()) {
             dead.add(troops.removeFirst());
@@ -155,8 +166,14 @@ public class EntityList {
         }
     }
 
+    public void win() {
+        tower.update();
+        heart.update();
+    }
+
     public void render(Screen screen) {
         tower.render(screen);
+        heart.render(screen);
         enemies.forEach((enemy) -> enemy.render(screen));
         troops.forEach((troop) -> troop.render(screen));
         dead.forEach((dead) -> dead.render(screen));

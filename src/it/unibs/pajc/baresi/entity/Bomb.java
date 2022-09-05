@@ -13,7 +13,6 @@ public class Bomb extends Entity {
     public static final int GAP = 15;
     private Asset[] assets;
     private int index;
-    private int timer;
     private int anim;
 
     public Bomb(Point position) {

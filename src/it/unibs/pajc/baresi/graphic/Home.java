@@ -10,8 +10,8 @@ public class Home {
 
     private final String TITLE = "THE T0WER";
     private final String[] OPTIONS = new String[]{
-            "PLAY",
-            "CREDITS",
+            "SINGLE PLAYER",
+            "MULTI PLAYER",
             "QUIT"
     };
     private final String RESUME = "RESUME";
@@ -29,6 +29,7 @@ public class Home {
     /// Updating and Rendering
     ///
     public Game.State update(Keyboard key, boolean pause) {
+
         if (pause)
             menu.setOption(0, RESUME);
         else
@@ -36,10 +37,10 @@ public class Home {
 
         switch (menu.update(key)) {
             case 0 -> {
-                return Game.State.PLAY;
+                return Game.State.SINGLE_PLAYER;
             }
             case 1 -> {
-                return Game.State.HOME;
+                return Game.State.MULTI_PLAYER;
             }
             case 2 -> {
                 return Game.State.QUIT;

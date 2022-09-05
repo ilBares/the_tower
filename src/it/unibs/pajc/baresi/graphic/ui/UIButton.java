@@ -2,6 +2,7 @@ package it.unibs.pajc.baresi.graphic.ui;
 
 import it.unibs.pajc.baresi.controller.Game;
 import it.unibs.pajc.baresi.input.Mouse;
+import it.unibs.pajc.baresi.level.Level;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -25,10 +26,10 @@ public class UIButton {
 
     public static UIButton btnMob = new UIButton("/button/button_mob.png", 15, 15, () -> System.out.print(""));
     public static UIButton btnBack = new UIButton("/button/button_back.png", 15, 15, () -> System.out.print(""));
-    public static UIButton btnMiniGolem = new UIButton("/button/button_mini_golem.png", 140, 10, Game.getLevel()::addMiniGolem);
-    public static UIButton btnAdventurer = new UIButton("/button/button_adventurer.png", 250, 10, Game.getLevel()::addAdventurer);
-    public static UIButton btnDragon = new UIButton("/button/button_dragon.png", 360, 10, Game.getLevel()::addDragon);
-    public static UIButton btnGolem = new UIButton("/button/button_golem.png", 470, 10, Game.getLevel()::addGolem);
+    public static UIButton btnMiniGolem = new UIButton("/button/button_mini_golem.png", 140, 10, () -> Game.getLevel().addTroop(Level.Troop.MINI_GOLEM));
+    public static UIButton btnAdventurer = new UIButton("/button/button_adventurer.png", 250, 10, () -> Game.getLevel().addTroop(Level.Troop.ADVENTURER));
+    public static UIButton btnDragon = new UIButton("/button/button_dragon.png", 360, 10, () -> Game.getLevel().addTroop(Level.Troop.DRAGON));
+    public static UIButton btnGolem = new UIButton("/button/button_golem.png", 470, 10, () -> Game.getLevel().addTroop(Level.Troop.GOLEM));
 
 
     public UIButton(String path, int x, int y, UIActionListener actionListener) {

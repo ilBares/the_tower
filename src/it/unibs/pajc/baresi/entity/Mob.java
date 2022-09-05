@@ -1,8 +1,9 @@
 package it.unibs.pajc.baresi.entity;
 
+import it.unibs.pajc.baresi.controller.Game;
 import it.unibs.pajc.baresi.graphic.Screen;
 import it.unibs.pajc.baresi.graphic.asset.sprite.Sprite;
-import it.unibs.pajc.baresi.sound.Sound;
+import it.unibs.pajc.baresi.sound.GameSound;
 
 import java.awt.*;
 
@@ -37,45 +38,43 @@ public class Mob extends Entity {
     public static final double FAST = 0.30;
     public static final double VERY_FAST = 0.35;
 
-    public static final int GAP = 15;
+    // public static final int GAP = 15;
     private double dx;
-    private int counter;
+    // private int counter;
 
     protected Sprite model;
     private Sprite[] sprites;
-    private int anim;
-
-    // TODO needed by the server
-    private int msLoading;
-
     private double damage;
     private int price;
+    private int soundIndex;
+
+    private Mob prev;
+    private long timer;
+    private int anim;
 
     protected State state;
 
-    private Mob prev;
-
     private boolean wait;
 
-    private int soundIndex;
 
     ///
     /// Constructor
     ///
-    public Mob(Point spawn, double speed, int msLoading, double health, double damage, int price, int soundIndex, Sprite model) {
-        this.x = spawn.getX();
-        this.y = spawn.getY();
-        this.dx = speed;
-        this.msLoading = msLoading;
+    public Mob(boolean troop, double speed, double health, double damage, int price, int soundIndex, Sprite model) {
+        this.x = troop ? Game.troopSpawn.getX() : Game.enemySpawn.getX();
+        this.y = troop ? Game.troopSpawn.getY() : Game.enemySpawn.getY();
+
+        this.dx = (troop ? 1 : -1) * speed;
         this.health = health;
         this.damage = damage;
         this.model = model;
         this.price = price;
         this.soundIndex = soundIndex;
 
+        timer = System.currentTimeMillis();
+
         idle();
     }
-
 
     ///
     /// Mob State needed methods
@@ -84,7 +83,8 @@ public class Mob extends Entity {
         if (state != State.IDLE) {
             state = State.IDLE;
             anim = 0;
-            counter = 0;
+            // counter = 0;
+            timer = System.currentTimeMillis();
             sprites = model.getIdle();
         }
         // set state to idle
@@ -95,7 +95,8 @@ public class Mob extends Entity {
         if (anim == sprites.length - 1 && state != State.MOVE) {
             state = State.MOVE;
             anim = 0;
-            counter = 0;
+            // counter = 0;
+            timer = System.currentTimeMillis();
             sprites = model.getMove();
         }
         // set state to move
@@ -107,7 +108,8 @@ public class Mob extends Entity {
         if (state != State.ATTACK) {
             state = State.ATTACK;
             anim = 0;
-            counter = 0;
+            // counter = 0;
+            timer = System.currentTimeMillis();
             sprites = model.getAttack();
             wait = false;
         }
@@ -125,7 +127,8 @@ public class Mob extends Entity {
         if (state != State.DEATH) {
             state = State.DEATH;
             anim = 0;
-            counter = 0;
+            // counter = 0;
+            timer = System.currentTimeMillis();
             sprites = model.getDeath();
         }
 
@@ -133,7 +136,6 @@ public class Mob extends Entity {
             remove();
         }
     }
-
 
     ///
     /// Getters and Setters
@@ -171,10 +173,18 @@ public class Mob extends Entity {
 
         if (isMoving()) x += dx;
 
-        if (isAlive() || anim != sprites.length - 1)
+        if (System.currentTimeMillis() > timer + 125) {
+            anim++;
+            anim %= sprites.length;
+            timer = System.currentTimeMillis();
+        }
+        /*
+        if (isAlive() || anim != sprites.length - 1) {
             anim = (++counter / (GAP)) % sprites.length;
+        }
+         */
 
-        counter %= (GAP * sprites.length);
+        // counter %= (GAP * sprites.length);
 
         //  if (state == 2 && opponent != null) opponent.hit(damage);
 
@@ -192,13 +202,12 @@ public class Mob extends Entity {
     ///
     /// Utilities methods
     ///
-
     /**
      * Plays Mob's sound effects when State is equal to {@code ATTACK}
      */
     private void playSE() {
         if (state == State.ATTACK && anim == 0 && !wait) {
-            Sound.play(soundIndex, false);
+            GameSound.play(soundIndex, false);
             wait = true;
         }
     }

@@ -7,31 +7,34 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 public class Server {
-    public static final int CLIENT_NUMBER = 2;
-    public static final int PORT = 3030;
+    public static final int CLIENT_NUMBER = 1;
+    public static final int PORT = 1234;
 
     public static void main(String[] args) {
         int connected = 0;
         System.out.println("Server is running...");
 
+        Protocol p = null;
+
         try ( ServerSocket server = new ServerSocket(PORT) ) {
 
             while (connected < CLIENT_NUMBER) {
                 Socket client = server.accept();
-                Protocol p = new Protocol(client);
+                System.out.println("Accepted");
+                p = new Protocol(client, connected++);
                 Thread clientThread = new Thread(p);
                 clientThread.start();
-                connected++;
             }
 
         } catch (IOException e) {
             System.err.println("Communication error: " + e);
         }
 
-        // TODO quando si collegano 2 giocatori avvio la partita (creo un livello nel protocol)
-        // effettuo l'update ciclicamente (del protocol) e invio l'aggiornamento ad ogni client
+        Protocol.level = new Level(true);
+        // TODO effettuo l'update ciclicamente (del protocol) e invio l'aggiornamento ad ogni client
 
+        p.scheduleUpdate();
 
-        System.out.println("exit...");
+        // System.out.println("exit...");
     }
 }
