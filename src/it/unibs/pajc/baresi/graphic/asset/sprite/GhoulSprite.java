@@ -1,6 +1,8 @@
 package it.unibs.pajc.baresi.graphic.asset.sprite;
 
-public class GhoulSprite extends Sprite {
+import java.io.Serializable;
+
+public class GhoulSprite extends Sprite implements Serializable {
 
 
     public GhoulSprite(int size) {

@@ -2,7 +2,9 @@ package it.unibs.pajc.baresi.graphic.asset.sprite;
 
 import it.unibs.pajc.baresi.graphic.asset.Asset;
 
-public class Sprite extends Asset {
+import java.io.Serializable;
+
+public class Sprite extends Asset implements Serializable {
 
     public Sprite[] idle;
     public Sprite[] move;

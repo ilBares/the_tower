@@ -8,18 +8,18 @@ import it.unibs.pajc.baresi.graphic.asset.HeartAsset;
 import java.awt.*;
 import java.io.Serializable;
 
-public class Heart extends Entity {
+public class Heart extends Entity implements Serializable {
 
     // TODO transient
-    private Asset[] assets;
+    transient private Asset[] assets;
     private double x, y;
     private int anim;
     private long timer;
 
 
-    public Heart() {
-        this.x = Game.troopSpawn.getX();
-        this.y = Game.troopSpawn.getY() - 5;
+    public Heart(Point position) {
+        this.x = position.getX();
+        this.y = position.getY();
 
         assets = HeartAsset.HEART;
 
@@ -52,4 +52,7 @@ public class Heart extends Entity {
         screen.renderAsset((int) x, (int) y, assets[anim]);
     }
 
+    public void setAssets(Asset[] assets) {
+        this.assets = assets;
+    }
 }

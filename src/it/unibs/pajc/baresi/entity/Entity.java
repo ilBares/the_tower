@@ -3,8 +3,9 @@ package it.unibs.pajc.baresi.entity;
 import it.unibs.pajc.baresi.graphic.Screen;
 
 import java.awt.*;
+import java.io.Serializable;
 
-public abstract class Entity {
+public abstract class Entity implements Serializable {
 
     protected double x, y;
     protected boolean removed = false;

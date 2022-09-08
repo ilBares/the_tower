@@ -34,7 +34,7 @@ public class UIMenu {
                 blocked = true;
             }
         } else if (key.isEnter()) {
-            return cmdNumber;
+            return (cmdNumber + 1) % options.length;
         } else if (blocked) {
             blocked = false;
         }
@@ -64,8 +64,6 @@ public class UIMenu {
         g2.setStroke(new BasicStroke(5));
 
         g2.drawRoundRect(x+5, y+5, w - 10, h - 10, 25, 25);
-
-
 
         // shadow
         UIText shadow = new UIText(title, 80, Color.GRAY);
@@ -110,5 +108,13 @@ public class UIMenu {
 
     public void setOption(int index, String text) {
         options[index] = text;
+    }
+
+    public void setOptions(String[] options) {
+        this.options = options;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
     }
 }

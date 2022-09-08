@@ -1,8 +1,6 @@
 package it.unibs.pajc.baresi;
 
 import it.unibs.pajc.baresi.controller.Game;
-import it.unibs.pajc.baresi.net.client.Client;
-import it.unibs.pajc.baresi.net.server.Protocol;
 
 import java.awt.*;
 import java.io.File;
@@ -23,8 +21,8 @@ public class EntryPoint {
      * main method that launches our games
      */
     public static void main(String[] args) {
-        int height = 360;
-        int width = height / 9 * 16;
+        int width = Game.GAME_WIDTH;
+        int height = Game.GAME_HEIGHT;
 
         ///
         /// setting graphics settings
@@ -44,7 +42,7 @@ public class EntryPoint {
         double scale = Math.min(bounds.getWidth() / width, (bounds.getHeight() - 50) / height);
 
         // initializing the game
-        Game game = new Game(width, height, scale, GAME_TITLE);
+        Game game = new Game(scale, GAME_TITLE);
         game.initialize();
 
         // starting the game

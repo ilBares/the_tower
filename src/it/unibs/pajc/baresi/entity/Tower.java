@@ -8,8 +8,9 @@ import it.unibs.pajc.baresi.graphic.asset.TowerAsset;
 import it.unibs.pajc.baresi.sound.GameSound;
 
 import java.awt.*;
+import java.io.Serializable;
 
-public class Tower extends Entity {
+public class Tower extends Entity implements Serializable {
 
     public enum State {
         INTACT, COMPROMISED, DAMAGED, DESTROYED
@@ -21,13 +22,13 @@ public class Tower extends Entity {
     public final double maxHealth;
 
     private State state;
-    private Asset[] assets;
+    transient private Asset[] assets;
 
     private boolean soundPlayed;
 
-    public Tower(double health) {
-        this.x = Game.enemySpawn.getX() - 100;
-        this.y = Game.enemySpawn.getY() + 1;
+    public Tower(Point position, double health) {
+        this.x = position.getX();
+        this.y = position.getY();
 
         this.health = health;
 
@@ -89,5 +90,9 @@ public class Tower extends Entity {
 
             screen.renderAsset((int) x + 25, (int) y, FireAsset.FIRE[anim % FireAsset.FIRE.length]);
         }
+    }
+
+    public void setAssets(Asset[] assets) {
+        this.assets = assets;
     }
 }

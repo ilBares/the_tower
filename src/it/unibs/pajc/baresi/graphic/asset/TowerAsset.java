@@ -16,6 +16,9 @@ public class TowerAsset extends Asset {
             new TowerAsset(150, 260, 3, 5, SpriteSheet.towerSheet),
     };
 
+    public TowerAsset() {
+
+    }
 
     private TowerAsset(int width, int height, int row, int column, SpriteSheet sheet) {
         this.width = width;

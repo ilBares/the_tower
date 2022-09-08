@@ -60,11 +60,11 @@ public class Mob extends Entity {
     ///
     /// Constructor
     ///
-    public Mob(boolean troop, double speed, double health, double damage, int price, int soundIndex, Sprite model) {
-        this.x = troop ? Game.troopSpawn.getX() : Game.enemySpawn.getX();
-        this.y = troop ? Game.troopSpawn.getY() : Game.enemySpawn.getY();
+    public Mob(Point spawn,  double speed, double health, double damage, int price, int soundIndex, Sprite model) {
+        this.x = spawn.getX();
+        this.y = spawn.getY();
 
-        this.dx = (troop ? 1 : -1) * speed;
+        this.dx = speed;
         this.health = health;
         this.damage = damage;
         this.model = model;
@@ -173,7 +173,7 @@ public class Mob extends Entity {
 
         if (isMoving()) x += dx;
 
-        if (System.currentTimeMillis() > timer + 125) {
+        if (System.currentTimeMillis() > timer + 110) {
             anim++;
             anim %= sprites.length;
             timer = System.currentTimeMillis();

@@ -2,10 +2,12 @@ package it.unibs.pajc.baresi.entity;
 
 import it.unibs.pajc.baresi.graphic.Screen;
 
+import java.awt.*;
+import java.io.Serializable;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-public class EntityList {
+public class EntityList implements Serializable {
     private LinkedList<Mob> troops;
     private LinkedList<Mob> enemies;
     private LinkedList<Mob> dead;
@@ -15,11 +17,12 @@ public class EntityList {
     ///
     /// Constructor
     ///
-    public EntityList() {
+    public EntityList(Point troopSpawn, Point enemySpawn) {
         troops = new LinkedList<>();
         enemies = new LinkedList<>();
         dead = new LinkedList<>();
-        heart = new Heart();
+        heart = new Heart(new Point(troopSpawn.x, troopSpawn.y - 5));
+        tower = new Tower(new Point(enemySpawn.x - 100, enemySpawn.y + 1), 1000);
     }
 
     ///
@@ -47,10 +50,6 @@ public class EntityList {
 
     public Heart getHeart() {
         return heart;
-    }
-
-    public void setTower(Tower tower) {
-        this.tower = tower;
     }
 
     public int enemyNumber() {

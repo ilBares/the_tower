@@ -5,6 +5,8 @@ import it.unibs.pajc.baresi.graphic.Screen;
 import it.unibs.pajc.baresi.graphic.asset.sprite.*;
 import it.unibs.pajc.baresi.sound.GameSound;
 
+import java.awt.*;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Random;
@@ -12,7 +14,7 @@ import java.util.Random;
 /**
  * Level class that contains the code needed for a specific level.
  */
-public class Level {
+public class Level implements Serializable {
 
     public enum Troop {
         MINI_GOLEM, ADVENTURER, DRAGON, GOLEM
@@ -22,7 +24,11 @@ public class Level {
         SKELETON, GHOUL
     }
 
+    public static Point troopSpawn;
+    public static Point enemySpawn;
+
     public static final int MAX_MONEY = 1000;
+    public static final int START_MONEY = 50;
     public static final int MONEY_OFFSET = 5;
 
     // entity list containing troops, enemies and tower
@@ -32,27 +38,28 @@ public class Level {
     private long timer;
 
     // needed to play in single player or multiplayer
-    private static ArrayList<Player> players;
+    private ArrayList<Player> players;
 
 
     ///
     /// Constructor
     ///
     public Level(boolean multiplayer) {
+        // TODO
+        troopSpawn = new Point(0, 342);
+        enemySpawn = new Point(1200, 343);
+
         timer = System.currentTimeMillis();
 
-        entityList = new EntityList();
-
-        Tower tower = new Tower( 1000);
-
-        entityList.setTower(tower);
+        entityList = new EntityList(troopSpawn, enemySpawn);
 
         players = new ArrayList<>();
 
-        players.add(new Player("Player 1", 50, MAX_MONEY));
+        players.add(new Player("Player 1", START_MONEY, MAX_MONEY));
 
         if (multiplayer)
-            players.add(new Player("Player 2", 50, MAX_MONEY));
+            players.add(new Player("Player 2", START_MONEY, MAX_MONEY));
+
     }
 
     ///
@@ -68,7 +75,7 @@ public class Level {
 
         switch (troop) {
             case MINI_GOLEM -> mob = new Mob(
-                    true,
+                    troopSpawn,
                     Mob.VERY_FAST,
                     50,
                     40,
@@ -77,7 +84,7 @@ public class Level {
                     new MiniGolemSprite(64)
             );
             case ADVENTURER -> mob = new Mob(
-                    true,
+                    troopSpawn,
                     Mob.MEDIUM,
                     125,
                     50,
@@ -86,7 +93,7 @@ public class Level {
                     new AdventurerSprite(64)
             );
             case DRAGON -> mob = new Mob(
-                    true,
+                    troopSpawn,
                     Mob.FAST,
                     200,
                     80,
@@ -95,7 +102,7 @@ public class Level {
                     new DragonSprite(64)
             );
             case GOLEM -> mob = new Mob(
-                   true,
+                   troopSpawn,
                    Mob.SLOW,
                    450,
                    20,
@@ -111,119 +118,21 @@ public class Level {
         }
     }
 
-    /*
-    public void addMiniGolem(int playerNo) {
-        Mob miniGolem = new Mob(
-                troopSpawn,
-                Mob.VERY_FAST,
-                500,
-                50,
-                40,
-                25,
-                Sound.MINI_GOLEM_ATTACK,
-                new MiniGolemSprite(64)
-        );
-
-        addTroop(miniGolem, playerNo);
-    }
-
-    public void addAdventurer(int playerNo) {
-        Mob adventurer = new Mob(
-                troopSpawn,
-                Mob.MEDIUM,
-                1000,
-                125,
-                50,
-                75,
-                Sound.ADVENTURER_ATTACK,
-                new AdventurerSprite(64)
-        );
-
-        addTroop(adventurer, playerNo);
-    }
-
-    public void addDragon(int playerNo) {
-        Mob dragon = new Mob(
-                troopSpawn,
-                Mob.FAST,
-                1500,
-                200,
-                80,
-                150,
-                Sound.DRAGON_ATTACK,
-                new DragonSprite(64));
-
-        addTroop(dragon, playerNo);
-    }
-
-    public void addGolem(int playerNo) {
-        Mob golem = new Mob(
-                troopSpawn,
-                Mob.SLOW,
-                2000,
-                450,
-                20,
-                300,
-                Sound.GOLEM_ATTACK,
-                new GolemSprite(64));
-
-        addTroop(golem, playerNo);
-    }
-
-    private void addSkeleton() {
-        Mob skeleton = new Mob(
-                enemySpawn,
-                -Mob.MEDIUM,
-                500,
-                125,
-                30,
-                50,
-                Sound.SKELETON_ATTACK,
-                new SkeletonSprite(64));
-
-        addEnemy(skeleton);
-    }
-
-    private void addGhoul() {
-        Mob ghoul = new Mob(
-                enemySpawn,
-                -Mob.SLOW,
-                1500,
-                350,
-                30,
-                200,
-                Sound.GHOUL_ATTACK,
-                new GhoulSprite(64));
-
-        addEnemy(ghoul);
-    }
-
-    private synchronized void addTroop(Mob mob, int playerNo) {
-
-        if (players.get(playerNo).subMoney(mob.getPrice()))
-            entityList.addTroop(mob);
-    }
-
-    private synchronized void addEnemy(Mob enemy) {
-        entityList.addEnemy(enemy);
-    }
-    */
-
     private void addEnemy(Enemy enemy) {
         Mob mob = null;
 
         switch (enemy) {
             case SKELETON -> mob = new Mob(
-                    false,
-                    Mob.MEDIUM,
+                    enemySpawn,
+                    - Mob.MEDIUM,
                     125,
                     30,
                     50,
                     GameSound.SKELETON_ATTACK,
                     new SkeletonSprite(64));
             case GHOUL -> mob = new Mob(
-                    false,
-                    Mob.SLOW,
+                    enemySpawn,
+                    - Mob.SLOW,
                     350,
                     30,
                     200,
@@ -245,6 +154,10 @@ public class Level {
 
     public int getMoney(int playerNo) {
         return players.get(playerNo).getMoney();
+    }
+
+    public EntityList getEntityList() {
+        return entityList;
     }
 
     ///
@@ -303,7 +216,7 @@ public class Level {
 
         // TODO
         if (!entityList.getHeart().isAlive())
-            return 1;
+            return -1;
         return 0;
     }
 

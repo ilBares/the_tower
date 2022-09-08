@@ -2,7 +2,9 @@ package it.unibs.pajc.baresi.graphic.asset;
 
 import it.unibs.pajc.baresi.graphic.asset.sprite.SpriteSheet;
 
-public abstract class Asset {
+import java.io.Serializable;
+
+public abstract class Asset implements Serializable {
 
     protected int width, height;
     protected int row, column;
