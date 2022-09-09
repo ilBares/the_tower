@@ -5,14 +5,27 @@ import it.unibs.pajc.baresi.input.Keyboard;
 
 import java.awt.*;
 
+/**
+ * UIMenu used to display different options and to handle input.
+ */
 public class UIMenu {
     private int screenWidth, screenHeight;
+
+    // title of the menu
     private String title;
+
+    // options of the menu
     private String[] options;
 
+    // command number (QUIT is always 0)
     private int cmdNumber;
+
+    // true if the scroll need to be blocked
     private boolean blocked;
 
+    ///
+    /// Constructor
+    ///
     public UIMenu(int screenWidth, int screenHeight, String title, String[] options) {
         this.screenWidth = screenWidth;
         this.screenHeight = screenHeight;
@@ -22,6 +35,14 @@ public class UIMenu {
         cmdNumber = 0;
     }
 
+    ///
+    /// Updating and Rendering
+    ///
+
+    /**
+     * @param key   keyboard listeners
+     * @return      number of update
+     */
     public int update(Keyboard key) {
         if (key.isUp()) {
             if (!blocked) {
@@ -44,6 +65,11 @@ public class UIMenu {
         return -1;
     }
 
+    /**
+     *
+     * @param g2        graphics 2d object
+     * @param screen    screen that renders menu
+     */
     public void renderMenu(Graphics2D g2, Screen screen) {
 
         int w = (int) (screenWidth * (2 / 3.));
@@ -106,10 +132,9 @@ public class UIMenu {
         }
     }
 
-    public void setOption(int index, String text) {
-        options[index] = text;
-    }
-
+    ///
+    /// Setters
+    ///
     public void setOptions(String[] options) {
         this.options = options;
     }

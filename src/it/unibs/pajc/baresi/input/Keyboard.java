@@ -20,7 +20,7 @@ public class Keyboard implements KeyListener {
      * Updates {@code left} and {@code right} variables based on KeyEvents.
      */
     public void update() {
-        // TODO to remove
+        // TODO to remove easter egg
         bares = keys[KeyEvent.VK_B] && keys[KeyEvent.VK_A] && keys[KeyEvent.VK_R]
                 && keys[KeyEvent.VK_E] && keys[KeyEvent.VK_S];
 
@@ -76,13 +76,15 @@ public class Keyboard implements KeyListener {
     }
 
     /**
-     * TODO TO REMOVE
      * @return @?!
      */
     public boolean isBares() {
         return bares;
     }
 
+    /**
+     * @return      true if any key pressed
+     */
     public boolean anyKey() {
         for (boolean b : keys)
             if (b) return true;

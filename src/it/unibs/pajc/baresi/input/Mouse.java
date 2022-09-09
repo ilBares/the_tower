@@ -4,6 +4,9 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 
+/**
+ * Mouse utility class.
+ */
 public class Mouse implements MouseListener, MouseMotionListener {
     private static int mouseX = -1;
     private static int mouseY = -1;

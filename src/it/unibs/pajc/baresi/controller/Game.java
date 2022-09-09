@@ -240,7 +240,6 @@ public class Game extends Canvas implements Runnable {
                 if (System.currentTimeMillis() - timer > 1000) {
                     timer += 1000;
 
-                    // TODO to remove
                     frame.setTitle(frames + " fps");
                     frames = 0;
                 }
@@ -379,6 +378,11 @@ public class Game extends Canvas implements Runnable {
         GameSound.play(GameSound.SOUND_TRACK, true);
     }
 
+    /**
+     * Used to add troop in case of single player or multiplayer.
+     *
+     * @param troop troop to add
+     */
     public static void addTroop(Level.Troop troop) {
         if (gameState == State.SINGLE_PLAYER)
             level.addTroop(troop);

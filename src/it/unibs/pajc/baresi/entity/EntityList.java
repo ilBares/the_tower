@@ -7,6 +7,13 @@ import java.io.Serializable;
 import java.util.Iterator;
 import java.util.LinkedList;
 
+/**
+ * EntityList class that handles different mob lists.
+ *
+ * @see Mob
+ * @see Tower
+ * @see Heart
+ */
 public class EntityList implements Serializable {
     private LinkedList<Mob> troops;
     private LinkedList<Mob> enemies;

@@ -1,22 +1,32 @@
 package it.unibs.pajc.baresi.graphic.ui;
 
 import it.unibs.pajc.baresi.graphic.Screen;
-import it.unibs.pajc.baresi.level.Level;
 
 import java.awt.*;
-import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * UIManager of the game.
+ * It handles buttons and labels.
+ *
+ * @see UIButton
+ * @see UIText
+ */
 public class UIManager {
     private List<UIButton> buttons = new ArrayList<>();
     private UIText lblMoney;
 
+
+    ///
+    /// Constructor
+    ///
     public UIManager(int screenWidth) {
         UIButton btnMob = UIButton.btnMob;
         UIButton btnBack = UIButton.btnBack;
 
+        // adding different buttons
         buttons.add(btnMob);
         buttons.add(btnBack);
         buttons.add(UIButton.btnMiniGolem);
@@ -26,6 +36,7 @@ public class UIManager {
 
         btnMob.setVisible(true);
 
+        // Setting mob button listener
         btnMob.setUiButtonListener(new UIButtonListener() {
             @Override
             public void released(UIButton button) {
@@ -36,6 +47,7 @@ public class UIManager {
             }
         });
 
+        // Setting back button listener
         btnBack.setUiButtonListener(new UIButtonListener() {
             @Override
             public void released(UIButton button) {
@@ -49,22 +61,36 @@ public class UIManager {
         lblMoney = new UIText("", screenWidth - 150, 75, 40);
     }
 
+
+    ///
+    /// Updating and Rendering
+    ///
+
+    /**
+     * Updates each button.
+     */
     public void update() {
         buttons.forEach(UIButton::update);
     }
 
+    /**
+     * Renders each visible button
+     * @param g2        Graphics 2D object
+     * @param screen    screen
+     * @param money
+     */
     public void render(Graphics2D g2, Screen screen, String money) {
         // rendering UI Buttons
         for (UIButton btn : buttons) {
             if (btn.isVisible()) {
                 screen.drawUIButton(g2, btn);
-                // c.render(g2);
             }
         }
 
-        // components.stream().filter(UIButton::isVisible).forEach(btn -> btn.render(g2));
+        // renders each visible button
         buttons.stream().filter(UIButton::isVisible).forEach(btn -> screen.drawUIButton(g2, btn));
 
+        // renders money label
         lblMoney.setText(money);
         screen.drawUIText(g2, lblMoney);
     }

@@ -10,6 +10,9 @@ import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
+/**
+ * UIButton class used from the UIManager.
+ */
 public class UIButton {
 
     private int x, y;
@@ -24,6 +27,7 @@ public class UIButton {
     private boolean pressed = false;
     private boolean visible = false;
 
+    // buttons used from the game with their actions
     public static UIButton btnMob = new UIButton("/button/button_mob.png", 15, 15, () -> {});
     public static UIButton btnBack = new UIButton("/button/button_back.png", 15, 15, () -> {});
     public static UIButton btnMiniGolem = new UIButton("/button/button_mini_golem.png", 140, 10, () -> Game.addTroop(Level.Troop.MINI_GOLEM));
@@ -31,7 +35,9 @@ public class UIButton {
     public static UIButton btnDragon = new UIButton("/button/button_dragon.png", 360, 10, () -> Game.addTroop(Level.Troop.DRAGON));
     public static UIButton btnGolem = new UIButton("/button/button_golem.png", 470, 10, () -> Game.addTroop(Level.Troop.GOLEM));
 
-
+    ///
+    /// Constructor
+    ///
     public UIButton(String path, int x, int y, UIActionListener actionListener) {
         this.path = path;
         this.x = x;
@@ -40,6 +46,7 @@ public class UIButton {
         setUiButtonListener(new UIButtonListener() { });
         load();
     }
+
 
     private void load() {
         try {
@@ -56,14 +63,9 @@ public class UIButton {
         }
     }
 
-    public void setVisible(boolean visible) {
-        this.visible = visible;
-    }
-
-    public boolean isVisible() {
-        return visible;
-    }
-
+    ///
+    /// Getters and Setters
+    ///
     public int getWidth() {
         return width;
     }
@@ -88,6 +90,25 @@ public class UIButton {
         this.buttonListener = buttonListener;
     }
 
+    public int[] getDefaultRGB() {
+        return defaultRGB;
+    }
+
+    public boolean isVisible() {
+        return visible;
+    }
+
+    public void setVisible(boolean visible) {
+        this.visible = visible;
+    }
+
+    public void setImage(BufferedImage image) {
+        this.image = image;
+    }
+
+    ///
+    /// Updating and rendering
+    ///
     public void update() {
         if (visible) {
             if (rect.contains(new Point(Mouse.getX(), Mouse.getY()))) {
@@ -113,13 +134,5 @@ public class UIButton {
                 buttonListener.exited(this);
             }
         }
-    }
-
-    public void setImage(BufferedImage image) {
-        this.image = image;
-    }
-
-    public int[] getDefaultRGB() {
-        return defaultRGB;
     }
 }

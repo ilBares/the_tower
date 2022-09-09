@@ -6,6 +6,11 @@ import it.unibs.pajc.baresi.input.Keyboard;
 
 import java.awt.*;
 
+/**
+ * Home class used to handle Menu of the game.
+ *
+ * @see UIMenu
+ */
 public class Home {
 
     private final String TITLE = "THE T0WER";
@@ -27,6 +32,11 @@ public class Home {
     ///
     /// Constructor
     ///
+
+    /**
+     * @param screenWidth   width of the screen
+     * @param screenHeight  height of the screen
+     */
     public Home(int screenWidth, int screenHeight) {
         menu = new UIMenu(screenWidth, screenHeight, TITLE, HOME_OPTIONS);
     }
@@ -34,6 +44,14 @@ public class Home {
     ///
     /// Updating and Rendering
     ///
+
+    /**
+     * Updates the menu.
+     *
+     * @param key   keyboard listener
+     * @param state of the game
+     * @return      option number (QUIT is always 0)
+     */
     public int update(Keyboard key, Game.State state) {
 
         switch (state) {
@@ -49,24 +67,15 @@ public class Home {
             case PAUSE -> menu.setOptions(PAUSE_OPTIONS);
         }
 
-        /*
-        switch (menu.update(key)) {
-            case 1 -> {
-                return Game.State.SINGLE_PLAYER;
-            }
-            case 2 -> {
-                return Game.State.MULTI_PLAYER;
-            }
-            case 0 -> {
-                return Game.State.QUIT;
-            }
-
-        }
-
-         */
         return menu.update(key);
     }
 
+    /**
+     * Renders the {@code UIMenu} menu.
+     *
+     * @param g2        graphics 2d
+     * @param screen    screen used to render
+     */
     public void render(Graphics2D g2, Screen screen) {
         menu.renderMenu(g2, screen);
     }

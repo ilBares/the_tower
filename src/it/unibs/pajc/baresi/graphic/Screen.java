@@ -64,6 +64,13 @@ public class Screen {
         }
     }
 
+    /**
+     * Renders a single {@code Asset} object.
+     *
+     * @param xOffset   x offset of the asset
+     * @param yOffset   y offset of the asset
+     * @param asset     asset to render
+     */
     public void renderAsset(int xOffset, int yOffset, Asset asset) {
         if (asset != null) {
             int[] spritePixels = asset.getPixels();
@@ -80,34 +87,37 @@ public class Screen {
         }
     }
 
+    /**
+     * Renders a single {@code UIText}.
+     *
+     * @param g2    graphics 2d object
+     * @param lbl   UIText label
+     * @see UIText
+     */
     public void drawUIText(Graphics2D g2, UIText lbl) {
         g2.setColor(lbl.getColor());
         g2.setFont(lbl.getFont());
         g2.drawString(lbl.getText(), lbl.getX(), lbl.getY());
     }
 
+    /**
+     * Renders a single {@code UIButton}
+     *
+     * @param g2    graphics 2d object
+     * @param btn   UIButton object
+     * @see UIButton
+     */
     public void drawUIButton(Graphics2D g2, UIButton btn) {
         g2.drawImage(btn.getImage(), btn.getX(), btn.getY(), null);
     }
-    /*
-    public void renderUIComponent(int xOffset, int yOffset, UIButton component) {
-        int[] componentPixels = component.getPixels();
-        int color;
-
-        for (int x = 0; x < component.getWidth(); x++) {
-            for (int y = 0; y < component.getHeight(); y++) {
-                color = componentPixels[x + y * component.getWidth()];
-                if (color != 0)
-                    pixels[(x + xOffset) + (y + yOffset) * width] = color;
-            }
-        }
-    }
-
-     */
 
     ///
     /// Getters and Setters
     ///
+
+    /**
+     * @param mapOffset to set
+     */
     public void setMapOffset(int mapOffset) {
         this.mapOffset = mapOffset;
     }
