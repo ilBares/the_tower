@@ -177,4 +177,16 @@ public class EntityList implements Serializable {
         troops.forEach((troop) -> troop.render(screen));
         dead.forEach((dead) -> dead.render(screen));
     }
+
+    public LinkedList<Mob> getTroops() {
+        return troops;
+    }
+
+    public LinkedList<Mob> getEnemies() {
+        return enemies;
+    }
+
+    public LinkedList<Mob> getDead() {
+        return dead;
+    }
 }

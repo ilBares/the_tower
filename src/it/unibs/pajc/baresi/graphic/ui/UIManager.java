@@ -5,6 +5,7 @@ import it.unibs.pajc.baresi.level.Level;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,6 +29,8 @@ public class UIManager {
         btnMob.setUiButtonListener(new UIButtonListener() {
             @Override
             public void released(UIButton button) {
+                BufferedImage image = button.getImage();
+                image.setRGB(0, 0, image.getWidth(), image.getHeight(), button.getDefaultRGB(), 0, image.getWidth());
                 btnMob.setVisible(false);
                 buttons.forEach(b -> b.setVisible(true));
             }
@@ -36,6 +39,8 @@ public class UIManager {
         btnBack.setUiButtonListener(new UIButtonListener() {
             @Override
             public void released(UIButton button) {
+                BufferedImage image = button.getImage();
+                image.setRGB(0, 0, image.getWidth(), image.getHeight(), button.getDefaultRGB(), 0, image.getWidth());
                 buttons.stream().skip(1).forEach(b -> b.setVisible(false));
                 btnMob.setVisible(true);
             }

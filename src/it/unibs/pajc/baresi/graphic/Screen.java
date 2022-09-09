@@ -65,15 +65,17 @@ public class Screen {
     }
 
     public void renderAsset(int xOffset, int yOffset, Asset asset) {
-        int[] spritePixels = asset.getPixels();
-        int color;
-        xOffset -= mapOffset;
+        if (asset != null) {
+            int[] spritePixels = asset.getPixels();
+            int color;
+            xOffset -= mapOffset;
 
-        for (int x = 0; x < asset.getWidth(); x++) {
-            for (int y = 0; y < asset.getHeight(); y++) {
-                color = spritePixels[x + y * asset.getWidth()];
-                if (color != 0 && (xOffset + x) >= 0 && (xOffset + x) < width)
-                    pixels[(x + xOffset) + (yOffset + y - asset.getHeight()) * width] = color;
+            for (int x = 0; x < asset.getWidth(); x++) {
+                for (int y = 0; y < asset.getHeight(); y++) {
+                    color = spritePixels[x + y * asset.getWidth()];
+                    if (color != 0 && (xOffset + x) >= 0 && (xOffset + x) < width)
+                        pixels[(x + xOffset) + (yOffset + y - asset.getHeight()) * width] = color;
+                }
             }
         }
     }

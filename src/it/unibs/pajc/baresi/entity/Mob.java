@@ -3,9 +3,11 @@ package it.unibs.pajc.baresi.entity;
 import it.unibs.pajc.baresi.controller.Game;
 import it.unibs.pajc.baresi.graphic.Screen;
 import it.unibs.pajc.baresi.graphic.asset.sprite.Sprite;
+import it.unibs.pajc.baresi.level.Level;
 import it.unibs.pajc.baresi.sound.GameSound;
 
 import java.awt.*;
+import java.io.Serializable;
 
 /*
  * ogni truppa ha un tempo di caricamento (almeno mezzo secondo)
@@ -27,7 +29,7 @@ import java.awt.*;
  * usa currentTimeMillis (NON System.nanoTime())
  */
 
-public class Mob extends Entity {
+public class Mob extends Entity implements Serializable {
 
     public enum State {
         IDLE, MOVE, ATTACK, DEATH
@@ -38,12 +40,15 @@ public class Mob extends Entity {
     public static final double FAST = 0.30;
     public static final double VERY_FAST = 0.35;
 
+    private Level.Category category;
+
     // public static final int GAP = 15;
     private double dx;
     // private int counter;
 
     protected Sprite model;
-    private Sprite[] sprites;
+    // the server does not send that array
+    transient private Sprite[] sprites;
     private double damage;
     private int price;
     private int soundIndex;
@@ -60,9 +65,11 @@ public class Mob extends Entity {
     ///
     /// Constructor
     ///
-    public Mob(Point spawn,  double speed, double health, double damage, int price, int soundIndex, Sprite model) {
+    public Mob(Level.Category category, Point spawn,  double speed, double health, double damage, int price, int soundIndex, Sprite model) {
         this.x = spawn.getX();
         this.y = spawn.getY();
+
+        this.category = category;
 
         this.dx = speed;
         this.health = health;
@@ -85,6 +92,7 @@ public class Mob extends Entity {
             anim = 0;
             // counter = 0;
             timer = System.currentTimeMillis();
+
             sprites = model.getIdle();
         }
         // set state to idle
@@ -178,15 +186,6 @@ public class Mob extends Entity {
             anim %= sprites.length;
             timer = System.currentTimeMillis();
         }
-        /*
-        if (isAlive() || anim != sprites.length - 1) {
-            anim = (++counter / (GAP)) % sprites.length;
-        }
-         */
-
-        // counter %= (GAP * sprites.length);
-
-        //  if (state == 2 && opponent != null) opponent.hit(damage);
 
         if (health <= 0)
             death();
@@ -196,7 +195,10 @@ public class Mob extends Entity {
 
     @Override
     public void render(Screen screen) {
-        screen.renderAsset((int) x, (int) y, sprites[anim]);
+        if (sprites != null)
+            screen.renderAsset((int) x, (int) y, sprites[anim]);
+        else
+            System.out.println("NULL " + state);
     }
 
     ///
@@ -210,6 +212,20 @@ public class Mob extends Entity {
             GameSound.play(soundIndex, false);
             wait = true;
         }
+    }
+
+    public void setModel(Sprite model) {
+        this.model = model;
+        switch (state) {
+            case IDLE -> sprites = model.getIdle();
+            case MOVE -> sprites = model.getMove();
+            case ATTACK -> sprites = model.getAttack();
+            case DEATH -> sprites = model.getDeath();
+        }
+    }
+
+    public Level.Category getCategory() {
+        return category;
     }
 }
 

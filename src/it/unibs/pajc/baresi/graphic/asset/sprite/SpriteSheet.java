@@ -3,9 +3,8 @@ package it.unibs.pajc.baresi.graphic.asset.sprite;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.io.Serializable;
 
-public class SpriteSheet implements Serializable {
+public class SpriteSheet {
     private int width, height;
     private String path;
     private int[] pixels;

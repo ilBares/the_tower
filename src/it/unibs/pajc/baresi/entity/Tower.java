@@ -95,4 +95,8 @@ public class Tower extends Entity implements Serializable {
     public void setAssets(Asset[] assets) {
         this.assets = assets;
     }
+
+    public State getState() {
+        return state;
+    }
 }

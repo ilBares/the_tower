@@ -115,9 +115,11 @@ public class UIButton {
         }
     }
 
-    /*
-    public void render(Graphics2D g2) {
-        g2.drawImage(image, x, y, null);
+    public void setImage(BufferedImage image) {
+        this.image = image;
     }
-     */
+
+    public int[] getDefaultRGB() {
+        return defaultRGB;
+    }
 }

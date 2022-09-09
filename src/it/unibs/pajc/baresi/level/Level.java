@@ -16,11 +16,13 @@ import java.util.Random;
  */
 public class Level implements Serializable {
 
-    public enum Troop {
+    public interface Category { }
+
+    public enum Troop implements Category {
         MINI_GOLEM, ADVENTURER, DRAGON, GOLEM
     }
 
-    private enum Enemy {
+    public enum Enemy implements Category {
         SKELETON, GHOUL
     }
 
@@ -40,6 +42,9 @@ public class Level implements Serializable {
     // needed to play in single player or multiplayer
     private ArrayList<Player> players;
 
+    private boolean multiplayer;
+
+    private int playerNo;
 
     ///
     /// Constructor
@@ -60,6 +65,8 @@ public class Level implements Serializable {
         if (multiplayer)
             players.add(new Player("Player 2", START_MONEY, MAX_MONEY));
 
+        this.multiplayer = multiplayer;
+
     }
 
     ///
@@ -75,46 +82,49 @@ public class Level implements Serializable {
 
         switch (troop) {
             case MINI_GOLEM -> mob = new Mob(
+                    troop,
                     troopSpawn,
                     Mob.VERY_FAST,
                     50,
                     40,
                     25,
                     GameSound.MINI_GOLEM_ATTACK,
-                    new MiniGolemSprite(64)
+                    multiplayer ? new EmptySprite(64, 5, 8, 8, 5) : new MiniGolemSprite(64)
             );
             case ADVENTURER -> mob = new Mob(
+                    troop,
                     troopSpawn,
                     Mob.MEDIUM,
                     125,
                     50,
                     75,
                     GameSound.ADVENTURER_ATTACK,
-                    new AdventurerSprite(64)
+                    multiplayer ? new EmptySprite(64, 10, 8, 10, 7) : new AdventurerSprite(64)
             );
             case DRAGON -> mob = new Mob(
+                    troop,
                     troopSpawn,
                     Mob.FAST,
                     200,
                     80,
                     150,
                     GameSound.DRAGON_ATTACK,
-                    new DragonSprite(64)
+                    multiplayer ? new EmptySprite(64, 10, 10, 10, 10) : new DragonSprite(64)
             );
             case GOLEM -> mob = new Mob(
-                   troopSpawn,
-                   Mob.SLOW,
+                    troop,
+                    troopSpawn,
+                    Mob.SLOW,
                    450,
                    20,
                    300,
                    GameSound.GOLEM_ATTACK,
-                   new GolemSprite(64)
+                   multiplayer ? new EmptySprite(64, 7, 10, 5, 9) : new GolemSprite(64)
             );
         }
 
-        synchronized (this) {
-            if (players.get(playerNo).subMoney(mob.getPrice()))
-                entityList.addTroop(mob);
+        if (players.get(playerNo).subMoney(mob.getPrice())) {
+            entityList.addTroop(mob);
         }
     }
 
@@ -122,22 +132,25 @@ public class Level implements Serializable {
         Mob mob = null;
 
         switch (enemy) {
+            // TODO
             case SKELETON -> mob = new Mob(
+                    Enemy.SKELETON,
                     enemySpawn,
                     - Mob.MEDIUM,
                     125,
                     30,
                     50,
                     GameSound.SKELETON_ATTACK,
-                    new SkeletonSprite(64));
+                    multiplayer ? new EmptySprite(64, 10, 10, 10, 9) : new SkeletonSprite(64));
             case GHOUL -> mob = new Mob(
+                    Enemy.GHOUL,
                     enemySpawn,
                     - Mob.SLOW,
                     350,
                     30,
                     200,
                     GameSound.GHOUL_ATTACK,
-                    new GhoulSprite(64));
+                    multiplayer ? new EmptySprite(64, 8, 8, 6, 6) : new GhoulSprite(64));
         }
 
         synchronized (this) {
@@ -149,7 +162,7 @@ public class Level implements Serializable {
     /// Getters
     ///
     public int getMoney() {
-        return players.get(0).getMoney();
+        return players.get(playerNo).getMoney();
     }
 
     public int getMoney(int playerNo) {
@@ -211,13 +224,7 @@ public class Level implements Serializable {
             else addEnemy(Enemy.GHOUL);
         }
 
-        if (!entityList.getTower().isAlive())
-            return 1;
-
-        // TODO
-        if (!entityList.getHeart().isAlive())
-            return -1;
-        return 0;
+        return getState();
     }
 
     private void updateState(Iterator<Mob> iterator, Mob firstOpponent, boolean troop) {
@@ -289,5 +296,24 @@ public class Level implements Serializable {
 
     public void win() {
         entityList.win();
+    }
+
+    public int getState() {
+        if (!entityList.getTower().isAlive())
+            return 1;
+
+        // TODO
+        if (!entityList.getHeart().isAlive())
+            return -1;
+
+        return 0;
+    }
+
+    public void setPlayerNo(int playerNo) {
+        this.playerNo = playerNo;
+    }
+
+    public boolean isMultiplayer() {
+        return multiplayer;
     }
 }

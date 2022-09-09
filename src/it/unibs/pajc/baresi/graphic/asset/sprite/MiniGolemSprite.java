@@ -1,5 +1,7 @@
 package it.unibs.pajc.baresi.graphic.asset.sprite;
 
+import java.io.Serializable;
+
 public class MiniGolemSprite extends Sprite {
 
     public MiniGolemSprite(int size) {

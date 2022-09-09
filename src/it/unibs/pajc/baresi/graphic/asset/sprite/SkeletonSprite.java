@@ -2,7 +2,7 @@ package it.unibs.pajc.baresi.graphic.asset.sprite;
 
 import java.io.Serializable;
 
-public class SkeletonSprite extends Sprite implements Serializable {
+public class SkeletonSprite extends Sprite {
 
     public SkeletonSprite(int size) {
         super();

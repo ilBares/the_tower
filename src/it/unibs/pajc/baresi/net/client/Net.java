@@ -1,7 +1,10 @@
 package it.unibs.pajc.baresi.net.client;
 
+import it.unibs.pajc.baresi.entity.Mob;
+import it.unibs.pajc.baresi.entity.Tower;
 import it.unibs.pajc.baresi.graphic.asset.HeartAsset;
 import it.unibs.pajc.baresi.graphic.asset.TowerAsset;
+import it.unibs.pajc.baresi.graphic.asset.sprite.Sprite;
 import it.unibs.pajc.baresi.level.Level;
 
 import java.io.IOException;
@@ -21,10 +24,9 @@ public class Net implements Runnable {
         try (
                 Socket server = new Socket(serverName, port);
                 ObjectInputStream in = new ObjectInputStream(server.getInputStream())
-
                 ){
 
-            out = new PrintWriter(server.getOutputStream(), true);
+                out = new PrintWriter(server.getOutputStream(), true);
             Object input;
 
             while (true) {
@@ -32,7 +34,24 @@ public class Net implements Runnable {
 
                 if (input instanceof Level) {
                     if (input != null) {
-                        netLevel = (Level) input;
+                        Level receivedLevel = (Level) input;
+
+                        if (receivedLevel != null) {
+                            receivedLevel.getEntityList().getHeart().setAssets(HeartAsset.HEART);
+                            Tower tower = receivedLevel.getEntityList().getTower();
+                            tower.setAssets(TowerAsset.getAsset(tower.getState()));
+
+                            for (Mob troop : receivedLevel.getEntityList().getTroops()) {
+                                troop.setModel(Sprite.getModel(troop.getCategory()));
+                            }
+                            for (Mob enemy : receivedLevel.getEntityList().getEnemies()) {
+                                enemy.setModel(Sprite.getModel(enemy.getCategory()));
+                            }
+                            for (Mob dead : receivedLevel.getEntityList().getDead()) {
+                                dead.setModel(Sprite.getModel(dead.getCategory()));
+                            }
+                        }
+                        netLevel = receivedLevel;
                     }
                 }
             }
@@ -45,16 +64,17 @@ public class Net implements Runnable {
     }
 
     public static Level getNetLevel() {
-        if (netLevel != null) {
-            netLevel.getEntityList().getHeart().setAssets(HeartAsset.HEART);
-            netLevel.getEntityList().getTower().setAssets(TowerAsset.INTACT);
-        }
         return netLevel;
     }
 
     public static void addTroop(Level.Troop troop) {
+
         if (out != null) {
-            out.print("@addTroop:" + troop.name().toLowerCase());
+            out.println("@addTroop:" + troop.name().toLowerCase());
         }
+    }
+
+    public static void quit() {
+        out.println("quit");
     }
 }

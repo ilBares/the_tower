@@ -9,16 +9,18 @@ import java.awt.*;
 public class Home {
 
     private final String TITLE = "THE T0WER";
-    private final String[] HOME_OPTIONS = new String[]{
+    private final String[] HOME_OPTIONS = new String[] {
             "SINGLE PLAYER",
             "MULTI PLAYER",
+            "QUIT"
+    };
+    private final String[] PAUSE_OPTIONS = new String[] {
+            "RESUME",
             "QUIT"
     };
     private final String[] END_OPTIONS = new String[] {
             "QUIT"
     };
-
-    private final String RESUME = "RESUME";
     private UIMenu menu;
 
 
@@ -32,19 +34,22 @@ public class Home {
     ///
     /// Updating and Rendering
     ///
-    public Game.State update(Keyboard key, Game.State state, boolean pause) {
+    public int update(Keyboard key, Game.State state) {
 
-        if (state == Game.State.WIN) {
-            menu.setOptions(END_OPTIONS);
-            menu.setTitle("WIN");
-        } else if (state == Game.State.GAME_OVER) {
-            menu.setOptions(END_OPTIONS);
-            menu.setTitle("GAME OVER");
-        } else if (pause)
-            menu.setOption(0, RESUME);
-        else
-            menu.setOption(0, HOME_OPTIONS[0]);
+        switch (state) {
+            case HOME -> menu.setOptions(HOME_OPTIONS);
+            case WIN -> {
+                menu.setOptions(END_OPTIONS);
+                menu.setTitle("WIN");
+            }
+            case GAME_OVER -> {
+                menu.setOptions(END_OPTIONS);
+                menu.setTitle("GAME OVER");
+            }
+            case PAUSE -> menu.setOptions(PAUSE_OPTIONS);
+        }
 
+        /*
         switch (menu.update(key)) {
             case 1 -> {
                 return Game.State.SINGLE_PLAYER;
@@ -57,7 +62,9 @@ public class Home {
             }
 
         }
-        return state;
+
+         */
+        return menu.update(key);
     }
 
     public void render(Graphics2D g2, Screen screen) {

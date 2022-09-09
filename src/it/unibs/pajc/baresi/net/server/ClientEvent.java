@@ -36,6 +36,7 @@ public class ClientEvent {
             command = tokens[0];
 
             parameters.addAll(Arrays.asList(tokens));
+            parameters.remove(0);
             
         }
         return new ClientEvent(player, command, parameters);

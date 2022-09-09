@@ -28,7 +28,7 @@ public class Game extends Canvas implements Runnable {
 
     // game state
     public enum State {
-        HOME, SINGLE_PLAYER, MULTI_PLAYER, QUIT, WIN, GAME_OVER
+        HOME, PAUSE, SINGLE_PLAYER, MULTI_PLAYER, QUIT, WIN, GAME_OVER
     }
 
     // swing and awt components
@@ -72,15 +72,13 @@ public class Game extends Canvas implements Runnable {
     // necessary to handle game state
     private static State gameState;
     private Home home;
-    private boolean pause;
 
-
+    // necessary for multiplayer mode
     private static Net net;
 
     ///
     /// Constructor
     ///
-
     /**
      * Game class constructor.
      *
@@ -122,7 +120,6 @@ public class Game extends Canvas implements Runnable {
                 new String[][]{Background.SKY, Background.MOUNTAINS, Background.CLOUDS, Background.GROUND}
         );
 
-        // TODO ADD CONST
         level = new Level(false);
 
         screen = new Screen(GAME_WIDTH, GAME_HEIGHT);
@@ -131,8 +128,6 @@ public class Game extends Canvas implements Runnable {
         // image printed on the screen with specific scale
         image = new BufferedImage(GAME_WIDTH, GAME_HEIGHT, BufferedImage.TYPE_INT_RGB);
         pixels = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
-
-        pause = false;
     }
 
     /**
@@ -190,6 +185,8 @@ public class Game extends Canvas implements Runnable {
      */
     public synchronized void stop() {
         running = false;
+        if (level.isMultiplayer())
+            Net.quit();
         thread.interrupt();
         System.exit(0);
     }
@@ -263,31 +260,30 @@ public class Game extends Canvas implements Runnable {
      */
     private void update() {
         int levelState = 0;
+        int code = -1;
 
         key.update();
-        background.update(gameState == State.HOME || gameState == State.WIN || gameState == State.GAME_OVER);
+        background.update(gameState == State.HOME || gameState == State.WIN || gameState == State.GAME_OVER || gameState == State.PAUSE);
 
-        if (key.isEscape() && !(gameState == State.WIN) && !(gameState == State.GAME_OVER)) {
-            gameState = State.HOME;
-            pause = true;
-        }
+        if (key.isEscape() && !(gameState == State.WIN) && !(gameState == State.GAME_OVER))
+            gameState = State.PAUSE;
 
         switch (gameState) {
             case WIN -> {
                 level.win();
-                gameState = home.update(key, gameState, false);
+                code = home.update(key, gameState);
                 // newGame();
             }
-            case GAME_OVER -> {
-                System.out.println("GAME OVER");
-                gameState = home.update(key, gameState, false);
-            }
-            case HOME -> {
-                gameState = home.update(key, gameState, pause);
+            case GAME_OVER, HOME, PAUSE -> {
+                code = home.update(key, gameState);
 
+                if (gameState == State.PAUSE && level.isMultiplayer()) {
 
-                if (gameState == State.SINGLE_PLAYER)
-                    pause = false;
+                    if (Net.getNetLevel() != null) {
+                        level = Net.getNetLevel();
+                        levelState = level.getState();
+                    }
+                }
             }
             case SINGLE_PLAYER -> {
                 screen.setMapOffset(background.getMapOffset());
@@ -300,22 +296,26 @@ public class Game extends Canvas implements Runnable {
             }
             case MULTI_PLAYER -> {
                 if (net == null) {
-                    System.out.println("new client socket");
                     net = new Net();
                     Thread netThread = new Thread(net);
                     netThread.start();
                 }
                 if (Net.getNetLevel() != null) {
                     level = Net.getNetLevel();
-                    levelState = level.update();
+                    levelState = level.getState();
                 }
 
                 screen.setMapOffset(background.getMapOffset());
-
                 uiManager.update();
             }
         }
-        // TODO TO IMPROVE
+
+        switch (code) {
+            case 0 -> gameState = State.QUIT;
+            case 1 -> gameState = level.isMultiplayer() ? State.MULTI_PLAYER : State.SINGLE_PLAYER;
+            case 2 -> gameState = State.MULTI_PLAYER;
+        }
+
         switch (levelState) {
             case 1 -> gameState = State.WIN;
             case -1 -> gameState = State.GAME_OVER;
@@ -363,7 +363,7 @@ public class Game extends Canvas implements Runnable {
         if (gameState == State.SINGLE_PLAYER || gameState == State.MULTI_PLAYER)
             uiManager.render(g2, screen, level.getMoney() + "");
 
-        if (gameState == State.HOME || gameState == State.GAME_OVER || gameState == State.WIN)
+        if (gameState == State.HOME || gameState == State.PAUSE || gameState == State.GAME_OVER || gameState == State.WIN)
             home.render(g2, screen);
 
         g2.dispose();
@@ -380,15 +380,10 @@ public class Game extends Canvas implements Runnable {
     }
 
     public static void addTroop(Level.Troop troop) {
-        switch (gameState) {
-            case SINGLE_PLAYER -> {
-                level.addTroop(troop);
-            }
-            case MULTI_PLAYER -> {
-                // Net.addTroop(troop);
-            }
-        }
+        if (gameState == State.SINGLE_PLAYER)
+            level.addTroop(troop);
+
+        if (level.isMultiplayer())
+            Net.addTroop(troop);
     }
 }
-
-

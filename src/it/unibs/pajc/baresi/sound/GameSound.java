@@ -6,7 +6,6 @@ import javax.sound.sampled.Clip;
 import java.net.URL;
 
 // TODO to complete https://www.youtube.com/watch?v=1O8tFKtZYTM&list=PL_QPQmz5C6WUF-pOQDsbsKbaBZqXj4qSq&index=38
-
 /**
  * Game Sound class used to play Music and Sound Effects.
  */

@@ -1,10 +1,11 @@
 package it.unibs.pajc.baresi.graphic.asset.sprite;
 
 import it.unibs.pajc.baresi.graphic.asset.Asset;
+import it.unibs.pajc.baresi.level.Level;
 
-import java.io.Serializable;
+import static it.unibs.pajc.baresi.level.Level.Troop.*;
 
-public class Sprite extends Asset implements Serializable {
+public class Sprite extends Asset {
 
     public Sprite[] idle;
     public Sprite[] move;
@@ -40,5 +41,35 @@ public class Sprite extends Asset implements Serializable {
 
     public Sprite[] getDeath() {
         return death;
+    }
+
+    public static Sprite getModel(Level.Category category) {
+        if (category instanceof Level.Troop) {
+            switch ((Level.Troop) category) {
+                case MINI_GOLEM -> {
+                    return new MiniGolemSprite(64);
+                }
+                case ADVENTURER -> {
+                    return new AdventurerSprite(64);
+                }
+                case DRAGON -> {
+                    return new DragonSprite(64);
+                }
+                case GOLEM -> {
+                    return new GolemSprite(64);
+                }
+            }
+        }
+        if (category instanceof Level.Enemy) {
+            switch ((Level.Enemy) category) {
+                case SKELETON -> {
+                    return new SkeletonSprite(64);
+                }
+                case GHOUL -> {
+                    return new GhoulSprite(64);
+                }
+            }
+        }
+        return null;
     }
 }
